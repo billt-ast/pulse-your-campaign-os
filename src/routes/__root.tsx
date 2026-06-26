@@ -91,6 +91,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Pulse — The operating system for modern campaigns" },
+      { name: "description", content: "Pulse is an operating system for modern campaigns, guiding users through the entire election lifecycle." },
+      { property: "og:description", content: "Pulse is an operating system for modern campaigns, guiding users through the entire election lifecycle." },
+      { name: "twitter:description", content: "Pulse is an operating system for modern campaigns, guiding users through the entire election lifecycle." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/4beLc1uQt7ZKzmtv8xh28nQkCki1/social-images/social-1782467087313-ChatGPT_Image_Jun_26,_2026,_08_39_46_AM.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/4beLc1uQt7ZKzmtv8xh28nQkCki1/social-images/social-1782467087313-ChatGPT_Image_Jun_26,_2026,_08_39_46_AM.webp" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
