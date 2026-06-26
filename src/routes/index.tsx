@@ -1376,24 +1376,33 @@ function GovernanceSection() {
             </div>
 
             {pairs.map(([c, g], i) => (
-              <Reveal key={c} delay={i * 0.08}>
-                <div className="bg-card px-5 py-6">
+              <Fragment key={c}>
+                <motion.div
+                  initial={{ opacity: 0, x: -16 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.7, delay: i * 0.1 }}
+                  className="bg-card px-5 py-6"
+                >
                   <p className="font-display text-2xl text-ink">{c}</p>
                   <div className="mt-2 flex items-center gap-2 text-xs text-graphite">
                     <span>Campaign workspace</span>
                     <ArrowRight className="h-3 w-3" />
                     <span className="text-civic">Transforms</span>
                   </div>
-                </div>
-                <div className="bg-card px-5 py-6">
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: 16 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.7, delay: i * 0.1 + 0.15 }}
+                  className="bg-card px-5 py-6"
+                >
                   <p className="font-display text-2xl text-ink">{g}</p>
                   <p className="mt-2 text-xs text-graphite">Continuity preserved · same data, new lens</p>
-                </div>
-              </Reveal>
-            )).flatMap((el, i) => [
-              // we already pass paired elements via fragment by relying on grid order
-              <div key={`a-${i}`} className="contents">{el}</div>,
-            ])}
+                </motion.div>
+              </Fragment>
+            ))}
           </div>
         </div>
       </div>
