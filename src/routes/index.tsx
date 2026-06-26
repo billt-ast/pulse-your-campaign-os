@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
-import { useRef, useState } from "react";
+import { useRef, useState, Fragment } from "react";
 import {
   ArrowUpRight,
   ArrowRight,
