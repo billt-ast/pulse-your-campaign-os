@@ -9,8 +9,38 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WalkthroughRouteImport } from './routes/walkthrough'
+import { Route as MissionControlRouteImport } from './routes/mission-control'
+import { Route as GovernanceRouteImport } from './routes/governance'
+import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as EcosystemRouteImport } from './routes/ecosystem'
 import { Route as IndexRouteImport } from './routes/index'
 
+const WalkthroughRoute = WalkthroughRouteImport.update({
+  id: '/walkthrough',
+  path: '/walkthrough',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MissionControlRoute = MissionControlRouteImport.update({
+  id: '/mission-control',
+  path: '/mission-control',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GovernanceRoute = GovernanceRouteImport.update({
+  id: '/governance',
+  path: '/governance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesRoute = FeaturesRouteImport.update({
+  id: '/features',
+  path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EcosystemRoute = EcosystemRouteImport.update({
+  id: '/ecosystem',
+  path: '/ecosystem',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +49,102 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ecosystem': typeof EcosystemRoute
+  '/features': typeof FeaturesRoute
+  '/governance': typeof GovernanceRoute
+  '/mission-control': typeof MissionControlRoute
+  '/walkthrough': typeof WalkthroughRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ecosystem': typeof EcosystemRoute
+  '/features': typeof FeaturesRoute
+  '/governance': typeof GovernanceRoute
+  '/mission-control': typeof MissionControlRoute
+  '/walkthrough': typeof WalkthroughRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ecosystem': typeof EcosystemRoute
+  '/features': typeof FeaturesRoute
+  '/governance': typeof GovernanceRoute
+  '/mission-control': typeof MissionControlRoute
+  '/walkthrough': typeof WalkthroughRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/ecosystem'
+    | '/features'
+    | '/governance'
+    | '/mission-control'
+    | '/walkthrough'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/ecosystem'
+    | '/features'
+    | '/governance'
+    | '/mission-control'
+    | '/walkthrough'
+  id:
+    | '__root__'
+    | '/'
+    | '/ecosystem'
+    | '/features'
+    | '/governance'
+    | '/mission-control'
+    | '/walkthrough'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EcosystemRoute: typeof EcosystemRoute
+  FeaturesRoute: typeof FeaturesRoute
+  GovernanceRoute: typeof GovernanceRoute
+  MissionControlRoute: typeof MissionControlRoute
+  WalkthroughRoute: typeof WalkthroughRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/walkthrough': {
+      id: '/walkthrough'
+      path: '/walkthrough'
+      fullPath: '/walkthrough'
+      preLoaderRoute: typeof WalkthroughRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mission-control': {
+      id: '/mission-control'
+      path: '/mission-control'
+      fullPath: '/mission-control'
+      preLoaderRoute: typeof MissionControlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/governance': {
+      id: '/governance'
+      path: '/governance'
+      fullPath: '/governance'
+      preLoaderRoute: typeof GovernanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features': {
+      id: '/features'
+      path: '/features'
+      fullPath: '/features'
+      preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ecosystem': {
+      id: '/ecosystem'
+      path: '/ecosystem'
+      fullPath: '/ecosystem'
+      preLoaderRoute: typeof EcosystemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +157,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EcosystemRoute: EcosystemRoute,
+  FeaturesRoute: FeaturesRoute,
+  GovernanceRoute: GovernanceRoute,
+  MissionControlRoute: MissionControlRoute,
+  WalkthroughRoute: WalkthroughRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
