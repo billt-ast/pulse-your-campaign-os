@@ -1848,6 +1848,7 @@ function PulseLanding() {
         <IntelligenceSection />
         <GovernanceSection />
         <ClosingSection />
+        <DemoRequestSection />
       </main>
       <Footer />
     </div>
