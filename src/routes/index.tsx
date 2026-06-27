@@ -156,27 +156,79 @@ function PulseMark({ className = "" }: { className?: string }) {
 }
 
 function Nav() {
+  const [open, setOpen] = useState(false);
+  const links = [
+    ["#problem", "Problem"],
+    ["#walkthrough", "Walkthrough"],
+    ["#mission", "Mission Control"],
+    ["#ecosystem", "Ecosystem"],
+    ["#governance", "Governance"],
+  ] as const;
   return (
     <header className="fixed inset-x-0 top-0 z-50">
       <div className="container-pulse">
-        <div className="mt-4 flex items-center justify-between rounded-full border border-hairline/80 bg-background/70 px-5 py-2.5 backdrop-blur-xl">
+        <div className="mt-3 flex items-center justify-between gap-3 rounded-full border border-hairline/80 bg-background/70 px-4 py-2 backdrop-blur-xl sm:mt-4 sm:px-5 sm:py-2.5">
           <PulseMark />
           <nav className="hidden items-center gap-8 text-sm text-graphite md:flex">
-            <a href="#problem" className="hover:text-ink transition-colors">Problem</a>
-            <a href="#walkthrough" className="hover:text-ink transition-colors">Walkthrough</a>
-            <a href="#mission" className="hover:text-ink transition-colors">Mission Control</a>
-            <a href="#ecosystem" className="hover:text-ink transition-colors">Ecosystem</a>
-            <a href="#governance" className="hover:text-ink transition-colors">Governance</a>
+            {links.map(([href, label]) => (
+              <a key={href} href={href} className="hover:text-ink transition-colors">{label}</a>
+            ))}
           </nav>
-          <a
-            href="#closing"
-            className="group inline-flex items-center gap-1.5 rounded-full bg-navy px-4 py-2 text-sm text-primary-foreground transition-all hover:bg-ink"
-          >
-            Book a demo
-            <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </a>
+          <div className="flex items-center gap-2">
+            <a
+              href="#demo-request"
+              className="group hidden items-center gap-1.5 rounded-full bg-navy px-4 py-2 text-sm text-primary-foreground transition-all hover:bg-ink sm:inline-flex"
+            >
+              Book a demo
+              <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </a>
+            <button
+              type="button"
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+              onClick={() => setOpen((v) => !v)}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-hairline text-ink md:hidden"
+            >
+              {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
       </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="container-pulse md:hidden"
+          >
+            <div className="mt-2 rounded-3xl border border-hairline bg-background/95 p-5 backdrop-blur-xl shadow-lg">
+              <nav className="flex flex-col divide-y divide-hairline">
+                {links.map(([href, label]) => (
+                  <a
+                    key={href}
+                    href={href}
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-between py-3 text-base text-ink"
+                  >
+                    {label}
+                    <ArrowUpRight className="h-4 w-4 text-graphite" />
+                  </a>
+                ))}
+              </nav>
+              <a
+                href="#demo-request"
+                onClick={() => setOpen(false)}
+                className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-navy px-4 py-3 text-sm text-primary-foreground"
+              >
+                Request private demonstration
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
