@@ -405,7 +405,7 @@ function HeroDashboardPreview() {
   );
 }
 
-function Hero() {
+export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [0, -80]);
@@ -472,7 +472,7 @@ function Hero() {
 /*  Problem                                                                   */
 /* -------------------------------------------------------------------------- */
 
-function ProblemSection() {
+export function ProblemSection() {
   // Two orbital rings of disconnected channels around the Pulse core.
   const innerChannels = ["WhatsApp groups", "Spreadsheets", "Emails", "PDFs"];
   const outerChannels = ["Volunteer lists", "Paper maps", "Social DMs", "Phone calls"];
@@ -599,7 +599,7 @@ function OrbitRing({
 /*  Pulse Concept (architecture)                                              */
 /* -------------------------------------------------------------------------- */
 
-function ConceptSection() {
+export function ConceptSection() {
   const layers = [
     { l: "Data layer", d: "Communities, volunteers, regions, issues." },
     { l: "Coordination layer", d: "Tasks, events, communications, approvals." },
@@ -718,7 +718,7 @@ const chapters = [
   },
 ];
 
-function WalkthroughSection() {
+export function WalkthroughSection() {
   return (
     <section id="walkthrough" className="border-t border-hairline py-28 md:py-40">
       <div className="container-pulse">
@@ -1009,7 +1009,7 @@ function ElectionPreview() {
 /*  Mission Control                                                           */
 /* -------------------------------------------------------------------------- */
 
-function MissionControlSection() {
+export function MissionControlSection() {
   const overlays = [
     "Campaign Pulse Score",
     "Operational Health Rings",
@@ -1164,7 +1164,7 @@ const modules = [
   "Feedback Loops", "Election Transition", "Governance Continuity",
 ];
 
-function EcosystemSection() {
+export function EcosystemSection() {
   return (
     <section id="ecosystem" className="border-t border-hairline py-28 md:py-40">
       <div className="container-pulse">
@@ -1290,7 +1290,7 @@ const showcases = [
   },
 ];
 
-function InteractiveFeatures() {
+export function InteractiveFeatures() {
   const [active, setActive] = useState(0);
   const item = showcases[active];
   const Icon = item.icon;
@@ -1390,7 +1390,7 @@ function InteractiveFeatures() {
 /*  Intelligence                                                              */
 /* -------------------------------------------------------------------------- */
 
-function IntelligenceSection() {
+export function IntelligenceSection() {
   const tiles = [
     { icon: Users, l: "Community Growth", v: "+18%", d: "Last 30 days" },
     { icon: Activity, l: "Operational Timeline", v: "94%", d: "Milestones on track" },
@@ -1439,7 +1439,7 @@ function IntelligenceSection() {
 /*  Governance transition                                                     */
 /* -------------------------------------------------------------------------- */
 
-function GovernanceSection() {
+export function GovernanceSection() {
   const pairs: [string, string][] = [
     ["Manifesto", "Development Plan"],
     ["Community", "Citizen Communities"],
@@ -1513,7 +1513,7 @@ function GovernanceSection() {
 /*  Closing                                                                   */
 /* -------------------------------------------------------------------------- */
 
-function ClosingSection() {
+export function ClosingSection() {
   return (
     <section id="closing" className="relative overflow-hidden border-t border-hairline py-32 md:py-48">
       <NetworkBackdrop />
@@ -1594,7 +1594,7 @@ const TIMELINES = [
   "Exploring for a future cycle",
 ];
 
-function DemoRequestSection() {
+export function DemoRequestSection() {
   const [form, setForm] = useState<DemoForm>({
     name: "", email: "", organization: "", role: "", timeline: "",
   });
@@ -1845,7 +1845,7 @@ function DemoField({
 /* -------------------------------------------------------------------------- */
 
 
-function Footer() {
+export function Footer() {
   return (
     <footer className="border-t border-hairline py-10">
       <div className="container-pulse flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
