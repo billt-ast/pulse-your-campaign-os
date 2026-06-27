@@ -460,16 +460,9 @@ function Hero() {
 /* -------------------------------------------------------------------------- */
 
 function ProblemSection() {
-  const fragments = [
-    { l: "WhatsApp groups", x: "8%", y: "12%", rot: -6 },
-    { l: "Spreadsheets", x: "70%", y: "8%", rot: 4 },
-    { l: "Emails", x: "30%", y: "78%", rot: -3 },
-    { l: "PDFs", x: "82%", y: "70%", rot: 7 },
-    { l: "Volunteer lists", x: "5%", y: "55%", rot: 3 },
-    { l: "Paper maps", x: "55%", y: "32%", rot: -2 },
-    { l: "Social DMs", x: "75%", y: "44%", rot: 5 },
-    { l: "Phone calls", x: "20%", y: "30%", rot: -5 },
-  ];
+  // Two orbital rings of disconnected channels around the Pulse core.
+  const innerChannels = ["WhatsApp groups", "Spreadsheets", "Emails", "PDFs"];
+  const outerChannels = ["Volunteer lists", "Paper maps", "Social DMs", "Phone calls"];
   const insights = [
     "Fragmented communication",
     "Lost institutional knowledge",
@@ -478,7 +471,7 @@ function ProblemSection() {
     "Reactive decision making",
   ];
   return (
-    <section id="problem" className="border-t border-hairline py-28 md:py-40">
+    <section id="problem" className="border-t border-hairline py-24 md:py-40">
       <div className="container-pulse">
         <SectionHeader
           index="01"
@@ -492,66 +485,51 @@ function ProblemSection() {
           subtitle="The cost is invisible until election day — when fragmentation becomes the difference between a coordinated movement and a scattered one."
         />
 
-        <div className="relative mt-20 grid gap-10 lg:grid-cols-[1.2fr_1fr]">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-hairline bg-card">
-            {fragments.map((f, i) => (
-              <motion.div
-                key={f.l}
-                initial={{ opacity: 0, scale: 0.9, rotate: f.rot }}
-                whileInView={{ opacity: 1, scale: 1, rotate: f.rot }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.08 }}
-                style={{ left: f.x, top: f.y }}
-                className="absolute -translate-x-1/2 -translate-y-1/2"
-              >
-                <div className="rounded-md border border-hairline bg-background px-3 py-1.5 text-xs text-graphite shadow-sm">
-                  {f.l}
-                </div>
-              </motion.div>
-            ))}
-            {/* Center pull */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.6 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1, delay: 0.8 }}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-            >
+        <div className="relative mt-14 grid gap-10 md:mt-20 lg:grid-cols-[1.2fr_1fr]">
+          <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-hairline bg-card sm:aspect-[4/3]">
+            {/* Decorative orbit guides */}
+            <div className="pointer-events-none absolute inset-0">
+              {[42, 68, 90].map((size) => (
+                <div
+                  key={size}
+                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-hairline/70"
+                  style={{ width: `${size}%`, height: `${size}%` }}
+                />
+              ))}
+            </div>
+
+            {/* Outer orbit (counter-clockwise) */}
+            <OrbitRing
+              channels={outerChannels}
+              radiusPct={44}
+              direction="reverse"
+            />
+            {/* Inner orbit (clockwise) */}
+            <OrbitRing
+              channels={innerChannels}
+              radiusPct={28}
+              direction="forward"
+            />
+
+            {/* Center pulse */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
               <div className="relative">
                 <span className="absolute inset-0 rounded-full bg-civic/30 blur-2xl" />
-                <div className="relative flex h-28 w-28 items-center justify-center rounded-full border border-navy/20 bg-card">
+                <span className="absolute inset-0 rounded-full bg-civic/40 animate-pulse-ring" />
+                <div className="relative flex h-24 w-24 items-center justify-center rounded-full border border-navy/20 bg-card sm:h-28 sm:w-28">
                   <PulseMark />
                 </div>
               </div>
-            </motion.div>
-            {/* Lines drawing to center */}
-            <svg aria-hidden className="absolute inset-0 h-full w-full">
-              {fragments.map((f, i) => (
-                <motion.line
-                  key={i}
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  whileInView={{ pathLength: 1, opacity: 0.5 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1.2, delay: 0.5 + i * 0.05 }}
-                  x1={f.x}
-                  y1={f.y}
-                  x2="50%"
-                  y2="50%"
-                  stroke="oklch(0.28 0.07 265)"
-                  strokeWidth="1"
-                  strokeDasharray="2 4"
-                />
-              ))}
-            </svg>
+            </div>
           </div>
 
           <ul className="flex flex-col justify-center gap-1">
             {insights.map((t, i) => (
               <Reveal key={t} delay={i * 0.08}>
-                <li className="group flex items-start gap-4 border-b border-hairline py-5">
+                <li className="group flex items-start gap-4 border-b border-hairline py-4 md:py-5">
                   <span className="mt-1 font-mono text-xs text-graphite">0{i + 1}</span>
                   <span className="flex-1 font-display text-2xl text-ink md:text-3xl">{t}</span>
-                  <span className="mt-2 h-1.5 w-1.5 rounded-full bg-civic opacity-60 group-hover:opacity-100" />
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-civic opacity-60 group-hover:opacity-100" />
                 </li>
               </Reveal>
             ))}
@@ -561,6 +539,50 @@ function ProblemSection() {
     </section>
   );
 }
+
+function OrbitRing({
+  channels,
+  radiusPct,
+  direction,
+}: {
+  channels: string[];
+  radiusPct: number;
+  direction: "forward" | "reverse";
+}) {
+  const orbitClass =
+    direction === "forward" ? "animate-orbit-slow" : "animate-orbit-reverse";
+  const counterClass =
+    direction === "forward"
+      ? "animate-counter-orbit-slow"
+      : "animate-orbit-slow";
+  return (
+    <div className={`pointer-events-none absolute inset-0 ${orbitClass}`}>
+      {channels.map((c, i) => {
+        const angle = (i / channels.length) * Math.PI * 2;
+        const x = 50 + radiusPct * Math.cos(angle);
+        const y = 50 + radiusPct * Math.sin(angle);
+        return (
+          <div
+            key={c}
+            className="absolute -translate-x-1/2 -translate-y-1/2"
+            style={{ left: `${x}%`, top: `${y}%` }}
+          >
+            {/* Counter-rotate so labels stay upright */}
+            <div className={counterClass}>
+              <div
+                className="animate-soft-pulse rounded-md border border-hairline bg-background px-2.5 py-1 text-[11px] text-graphite shadow-sm sm:px-3 sm:py-1.5 sm:text-xs"
+                style={{ animationDelay: `${i * 0.35}s` }}
+              >
+                {c}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 
 /* -------------------------------------------------------------------------- */
 /*  Pulse Concept (architecture)                                              */
