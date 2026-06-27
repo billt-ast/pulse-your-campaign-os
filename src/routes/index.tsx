@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
+import { motion, useScroll, useTransform, useReducedMotion, AnimatePresence } from "motion/react";
 import { useRef, useState, Fragment } from "react";
+import { z } from "zod";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -20,7 +21,20 @@ import {
   Sparkles,
   Compass,
   Check,
+  Menu,
+  X,
+  Loader2,
+  ShieldCheck,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -142,27 +156,79 @@ function PulseMark({ className = "" }: { className?: string }) {
 }
 
 function Nav() {
+  const [open, setOpen] = useState(false);
+  const links = [
+    ["#problem", "Problem"],
+    ["#walkthrough", "Walkthrough"],
+    ["#mission", "Mission Control"],
+    ["#ecosystem", "Ecosystem"],
+    ["#governance", "Governance"],
+  ] as const;
   return (
     <header className="fixed inset-x-0 top-0 z-50">
       <div className="container-pulse">
-        <div className="mt-4 flex items-center justify-between rounded-full border border-hairline/80 bg-background/70 px-5 py-2.5 backdrop-blur-xl">
+        <div className="mt-3 flex items-center justify-between gap-3 rounded-full border border-hairline/80 bg-background/70 px-4 py-2 backdrop-blur-xl sm:mt-4 sm:px-5 sm:py-2.5">
           <PulseMark />
           <nav className="hidden items-center gap-8 text-sm text-graphite md:flex">
-            <a href="#problem" className="hover:text-ink transition-colors">Problem</a>
-            <a href="#walkthrough" className="hover:text-ink transition-colors">Walkthrough</a>
-            <a href="#mission" className="hover:text-ink transition-colors">Mission Control</a>
-            <a href="#ecosystem" className="hover:text-ink transition-colors">Ecosystem</a>
-            <a href="#governance" className="hover:text-ink transition-colors">Governance</a>
+            {links.map(([href, label]) => (
+              <a key={href} href={href} className="hover:text-ink transition-colors">{label}</a>
+            ))}
           </nav>
-          <a
-            href="#closing"
-            className="group inline-flex items-center gap-1.5 rounded-full bg-navy px-4 py-2 text-sm text-primary-foreground transition-all hover:bg-ink"
-          >
-            Book a demo
-            <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </a>
+          <div className="flex items-center gap-2">
+            <a
+              href="#demo-request"
+              className="group hidden items-center gap-1.5 rounded-full bg-navy px-4 py-2 text-sm text-primary-foreground transition-all hover:bg-ink sm:inline-flex"
+            >
+              Book a demo
+              <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </a>
+            <button
+              type="button"
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+              onClick={() => setOpen((v) => !v)}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-hairline text-ink md:hidden"
+            >
+              {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
       </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="container-pulse md:hidden"
+          >
+            <div className="mt-2 rounded-3xl border border-hairline bg-background/95 p-5 backdrop-blur-xl shadow-lg">
+              <nav className="flex flex-col divide-y divide-hairline">
+                {links.map(([href, label]) => (
+                  <a
+                    key={href}
+                    href={href}
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-between py-3 text-base text-ink"
+                  >
+                    {label}
+                    <ArrowUpRight className="h-4 w-4 text-graphite" />
+                  </a>
+                ))}
+              </nav>
+              <a
+                href="#demo-request"
+                onClick={() => setOpen(false)}
+                className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-navy px-4 py-3 text-sm text-primary-foreground"
+              >
+                Request private demonstration
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
@@ -1435,7 +1501,7 @@ function ClosingSection() {
             lifecycle — planning, operations, election day and governance.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <a className="group inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm text-primary-foreground transition-transform hover:-translate-y-0.5" href="mailto:hello@pulse.app">
+            <a className="group inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm text-primary-foreground transition-transform hover:-translate-y-0.5" href="#demo-request">
               Request private demonstration
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </a>
@@ -1450,8 +1516,301 @@ function ClosingSection() {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  Demo Request                                                              */
+/* -------------------------------------------------------------------------- */
+
+const FREE_EMAIL_DOMAINS = new Set([
+  "gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "icloud.com",
+  "aol.com", "proton.me", "protonmail.com", "live.com", "msn.com",
+]);
+
+const demoSchema = z.object({
+  name: z.string().trim().min(2, "Please share your full name").max(80),
+  email: z
+    .string()
+    .trim()
+    .max(120)
+    .email("Enter a valid work email")
+    .refine(
+      (e) => !FREE_EMAIL_DOMAINS.has(e.split("@")[1]?.toLowerCase() ?? ""),
+      "Please use your work email address",
+    ),
+  organization: z.string().trim().min(2, "Organization is required").max(120),
+  role: z.string().min(1, "Select your role"),
+  timeline: z.string().min(1, "Select a timeline"),
+});
+
+type DemoForm = z.infer<typeof demoSchema>;
+type DemoErrors = Partial<Record<keyof DemoForm, string>>;
+
+const ROLES = [
+  "Campaign Manager",
+  "Chief of Staff",
+  "Field Director",
+  "Communications Lead",
+  "Data & Analytics",
+  "Candidate / Principal",
+  "Party / Coalition Leadership",
+  "Other",
+];
+
+const TIMELINES = [
+  "Within 2 weeks",
+  "This quarter",
+  "Next 3–6 months",
+  "Exploring for a future cycle",
+];
+
+function DemoRequestSection() {
+  const [form, setForm] = useState<DemoForm>({
+    name: "", email: "", organization: "", role: "", timeline: "",
+  });
+  const [errors, setErrors] = useState<DemoErrors>({});
+  const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
+
+  function update<K extends keyof DemoForm>(key: K, value: DemoForm[K]) {
+    setForm((f) => ({ ...f, [key]: value }));
+    if (errors[key]) setErrors((e) => ({ ...e, [key]: undefined }));
+  }
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const parsed = demoSchema.safeParse(form);
+    if (!parsed.success) {
+      const next: DemoErrors = {};
+      for (const issue of parsed.error.issues) {
+        const k = issue.path[0] as keyof DemoForm;
+        if (!next[k]) next[k] = issue.message;
+      }
+      setErrors(next);
+      return;
+    }
+    setStatus("submitting");
+    await new Promise((r) => setTimeout(r, 900));
+    setStatus("success");
+  }
+
+  return (
+    <section
+      id="demo-request"
+      className="relative scroll-mt-24 border-t border-hairline bg-gradient-to-b from-background to-secondary/40 py-24 md:py-36"
+    >
+      <div className="container-pulse">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-20">
+          {/* Left: pitch */}
+          <div className="flex flex-col gap-8">
+            <Eyebrow index="10">Private demonstration</Eyebrow>
+            <h2 className="font-display text-4xl leading-[1.05] text-balance text-ink sm:text-5xl md:text-6xl">
+              A guided walkthrough,<br className="hidden sm:block" />{" "}
+              <span className="italic text-navy">tailored to your campaign</span>.
+            </h2>
+            <p className="max-w-md text-base leading-relaxed text-graphite sm:text-lg">
+              Tell us a little about your work. A member of the Pulse team will reach out
+              within one business day to schedule a 45-minute private session — no slides,
+              just the product in motion.
+            </p>
+            <ul className="grid gap-3 text-sm text-ink">
+              {[
+                "End-to-end walkthrough across planning, ops & governance",
+                "Tailored to your jurisdiction and team size",
+                "Discussion of data residency, security and rollout",
+              ].map((line) => (
+                <li key={line} className="flex items-start gap-3">
+                  <span className="mt-1 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-civic/15 text-civic">
+                    <Check className="h-3 w-3" />
+                  </span>
+                  <span className="min-w-0">{line}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="flex items-center gap-2 text-xs text-graphite">
+              <ShieldCheck className="h-4 w-4 text-civic" />
+              Your details stay private. We never share or sell campaign data.
+            </div>
+          </div>
+
+          {/* Right: form */}
+          <div className="relative">
+            <div className="rounded-3xl border border-hairline bg-card p-6 shadow-[0_30px_80px_-40px_rgba(20,30,60,0.25)] sm:p-8 md:p-10">
+              <AnimatePresence mode="wait">
+                {status === "success" ? (
+                  <motion.div
+                    key="success"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="flex flex-col items-center gap-5 py-10 text-center"
+                  >
+                    <div className="relative grid h-14 w-14 place-items-center rounded-full bg-civic/15 text-civic">
+                      <span className="absolute inset-0 rounded-full bg-civic/25 animate-pulse-ring" />
+                      <Check className="relative h-6 w-6" />
+                    </div>
+                    <h3 className="font-display text-3xl text-ink">Request received</h3>
+                    <p className="max-w-sm text-sm text-graphite">
+                      Thank you, {form.name.split(" ")[0]}. A member of the Pulse team will reach
+                      out to <span className="text-ink">{form.email}</span> within one business day.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setForm({ name: "", email: "", organization: "", role: "", timeline: "" });
+                        setStatus("idle");
+                      }}
+                      className="text-xs uppercase tracking-[0.2em] text-graphite hover:text-ink"
+                    >
+                      Submit another request
+                    </button>
+                  </motion.div>
+                ) : (
+                  <motion.form
+                    key="form"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    onSubmit={onSubmit}
+                    noValidate
+                    className="flex flex-col gap-5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs uppercase tracking-[0.2em] text-graphite">
+                        Request a demonstration
+                      </span>
+                      <span className="hidden text-[11px] text-graphite sm:inline">
+                        ~ 60 seconds
+                      </span>
+                    </div>
+
+                    <div className="grid gap-5 sm:grid-cols-2">
+                      <DemoField label="Full name" error={errors.name} htmlFor="demo-name">
+                        <Input
+                          id="demo-name"
+                          autoComplete="name"
+                          value={form.name}
+                          onChange={(e) => update("name", e.target.value)}
+                          placeholder="Alex Rivera"
+                          maxLength={80}
+                          aria-invalid={!!errors.name}
+                        />
+                      </DemoField>
+                      <DemoField label="Work email" error={errors.email} htmlFor="demo-email">
+                        <Input
+                          id="demo-email"
+                          type="email"
+                          autoComplete="email"
+                          inputMode="email"
+                          value={form.email}
+                          onChange={(e) => update("email", e.target.value)}
+                          placeholder="alex@campaign.org"
+                          maxLength={120}
+                          aria-invalid={!!errors.email}
+                        />
+                      </DemoField>
+                    </div>
+
+                    <DemoField label="Organization" error={errors.organization} htmlFor="demo-org">
+                      <Input
+                        id="demo-org"
+                        autoComplete="organization"
+                        value={form.organization}
+                        onChange={(e) => update("organization", e.target.value)}
+                        placeholder="Campaign, party or coalition"
+                        maxLength={120}
+                        aria-invalid={!!errors.organization}
+                      />
+                    </DemoField>
+
+                    <div className="grid gap-5 sm:grid-cols-2">
+                      <DemoField label="Your role" error={errors.role} htmlFor="demo-role">
+                        <Select
+                          value={form.role}
+                          onValueChange={(v) => update("role", v)}
+                        >
+                          <SelectTrigger id="demo-role" aria-invalid={!!errors.role} className="h-9 w-full">
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {ROLES.map((r) => (
+                              <SelectItem key={r} value={r}>{r}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </DemoField>
+                      <DemoField label="Preferred timeline" error={errors.timeline} htmlFor="demo-timeline">
+                        <Select
+                          value={form.timeline}
+                          onValueChange={(v) => update("timeline", v)}
+                        >
+                          <SelectTrigger id="demo-timeline" aria-invalid={!!errors.timeline} className="h-9 w-full">
+                            <SelectValue placeholder="When are you exploring?" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TIMELINES.map((t) => (
+                              <SelectItem key={t} value={t}>{t}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </DemoField>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={status === "submitting"}
+                      className="group mt-2 inline-flex h-12 items-center justify-center gap-2 rounded-full bg-ink px-6 text-sm text-primary-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70 sm:h-11"
+                    >
+                      {status === "submitting" ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" /> Sending request
+                        </>
+                      ) : (
+                        <>
+                          Request private demonstration
+                          <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                        </>
+                      )}
+                    </button>
+
+                    <p className="text-[11px] leading-relaxed text-graphite">
+                      By submitting, you agree that Pulse may contact you about the
+                      demonstration. We do not share your information with third parties.
+                    </p>
+                  </motion.form>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function DemoField({
+  label,
+  htmlFor,
+  error,
+  children,
+}: {
+  label: string;
+  htmlFor: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-1.5">
+      <Label htmlFor={htmlFor} className="text-[11px] uppercase tracking-[0.18em] text-graphite">
+        {label}
+      </Label>
+      {children}
+      {error && (
+        <span className="text-[11px] font-medium text-destructive">{error}</span>
+      )}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Footer                                                                    */
 /* -------------------------------------------------------------------------- */
+
 
 function Footer() {
   return (
@@ -1489,6 +1848,7 @@ function PulseLanding() {
         <IntelligenceSection />
         <GovernanceSection />
         <ClosingSection />
+        <DemoRequestSection />
       </main>
       <Footer />
     </div>
