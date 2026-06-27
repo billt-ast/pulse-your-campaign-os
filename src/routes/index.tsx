@@ -544,18 +544,15 @@ function ProblemSection() {
 function OrbitRing({
   channels,
   radiusPct,
-  direction,
+  speed,
 }: {
   channels: string[];
   radiusPct: number;
-  direction: "forward" | "reverse";
+  speed: "slow" | "fast";
 }) {
-  const orbitClass =
-    direction === "forward" ? "animate-orbit-slow" : "animate-orbit-reverse";
+  const orbitClass = speed === "slow" ? "animate-orbit-slow" : "animate-orbit-fast";
   const counterClass =
-    direction === "forward"
-      ? "animate-counter-orbit-slow"
-      : "animate-orbit-slow";
+    speed === "slow" ? "animate-counter-orbit-slow" : "animate-counter-orbit-fast";
   return (
     <div className={`pointer-events-none absolute inset-0 ${orbitClass}`}>
       {channels.map((c, i) => {
