@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, useScroll, useTransform, useReducedMotion, AnimatePresence } from "motion/react";
 import { useRef, useState, Fragment } from "react";
 import { z } from "zod";
