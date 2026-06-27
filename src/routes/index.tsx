@@ -498,18 +498,19 @@ function ProblemSection() {
               ))}
             </div>
 
-            {/* Outer orbit (counter-clockwise) */}
+            {/* Outer orbit (slower) */}
             <OrbitRing
               channels={outerChannels}
               radiusPct={44}
-              direction="reverse"
+              speed="slow"
             />
-            {/* Inner orbit (clockwise) */}
+            {/* Inner orbit (faster) */}
             <OrbitRing
               channels={innerChannels}
               radiusPct={28}
-              direction="forward"
+              speed="fast"
             />
+
 
             {/* Center pulse */}
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
