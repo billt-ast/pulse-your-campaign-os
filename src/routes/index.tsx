@@ -1867,20 +1867,134 @@ export function Footer() {
 /*  Page                                                                      */
 /* -------------------------------------------------------------------------- */
 
+/* -------------------------------------------------------------------------- */
+/*  Section teasers — link to dedicated pages                                 */
+/* -------------------------------------------------------------------------- */
+
+const sectionTeasers: ReadonlyArray<{
+  to: "/walkthrough" | "/mission-control" | "/ecosystem" | "/features" | "/governance";
+  index: string;
+  eyebrow: string;
+  title: string;
+  body: string;
+  icon: typeof Activity;
+}> = [
+  {
+    to: "/walkthrough",
+    index: "03",
+    eyebrow: "Follow a campaign",
+    title: "An entire election lifecycle, scroll by scroll.",
+    body: "Six chapters across planning, volunteers, community, comms, polling and election day.",
+    icon: Calendar,
+  },
+  {
+    to: "/mission-control",
+    index: "04",
+    eyebrow: "Mission Control",
+    title: "The single pane of glass for leadership.",
+    body: "Strategy, operations, communications and movement health — viewed from one workspace.",
+    icon: Activity,
+  },
+  {
+    to: "/ecosystem",
+    index: "05",
+    eyebrow: "Everything connected",
+    title: "One core. Twenty-three modules. Zero seams.",
+    body: "An ecosystem of workspaces that share data, permissions and operating language.",
+    icon: Layers,
+  },
+  {
+    to: "/features",
+    index: "06",
+    eyebrow: "Explore every workspace",
+    title: "Eight signature surfaces. Pick one.",
+    body: "Campaign management, community, manifesto, polls, projects, issues, mapping and QR distribution.",
+    icon: Sparkles,
+  },
+  {
+    to: "/governance",
+    index: "08",
+    eyebrow: "Governance transition",
+    title: "The campaign doesn't end on election day.",
+    body: "Pulse preserves institutional knowledge and relationships into governance delivery.",
+    icon: Building2,
+  },
+];
+
+function SectionTeasers() {
+  return (
+    <section className="border-t border-hairline bg-secondary/40 py-24 md:py-32">
+      <div className="container-pulse">
+        <SectionHeader
+          index="02"
+          eyebrow="Explore Pulse"
+          title={<>The full product, <span className="italic text-navy">page by page</span>.</>}
+          subtitle="Each chapter of the Pulse experience lives on its own page — load only what you need, share a link to any part of the story."
+        />
+        <div className="mt-12 grid gap-4 sm:gap-5 md:mt-16 md:grid-cols-2 lg:grid-cols-3">
+          {sectionTeasers.map((s, i) => {
+            const Icon = s.icon;
+            return (
+              <Reveal key={s.to} delay={(i % 3) * 0.08}>
+                <Link
+                  to={s.to}
+                  className="group relative flex h-full flex-col gap-4 rounded-2xl border border-hairline bg-card p-6 transition-all hover:-translate-y-0.5 hover:border-navy/30 hover:shadow-[0_20px_50px_-30px_rgba(20,30,60,0.25)]"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-hairline text-graphite group-hover:border-civic/30 group-hover:text-civic">
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <span className="font-mono text-[10px] text-graphite">{s.index}</span>
+                  </div>
+                  <div className="space-y-2">
+                    <span className="text-[11px] uppercase tracking-[0.18em] text-civic">
+                      {s.eyebrow}
+                    </span>
+                    <h3 className="font-display text-2xl leading-tight text-ink md:text-[26px]">
+                      {s.title}
+                    </h3>
+                    <p className="text-sm leading-relaxed text-graphite">{s.body}</p>
+                  </div>
+                  <span className="mt-auto inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] text-ink">
+                    Open page
+                    <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </span>
+                </Link>
+              </Reveal>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Shared shell for dedicated section pages                                  */
+/* -------------------------------------------------------------------------- */
+
+export function PulseShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
+      <Nav />
+      <main className="pt-28 md:pt-32">{children}</main>
+      <ClosingSection />
+      <DemoRequestSection />
+      <Footer />
+    </div>
+  );
+}
+
 function PulseLanding() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
       <Nav />
       <main>
         <Hero />
         <ProblemSection />
         <ConceptSection />
-        <WalkthroughSection />
-        <MissionControlSection />
-        <EcosystemSection />
-        <InteractiveFeatures />
+        <SectionTeasers />
         <IntelligenceSection />
-        <GovernanceSection />
         <ClosingSection />
         <DemoRequestSection />
       </main>
@@ -1888,3 +2002,4 @@ function PulseLanding() {
     </div>
   );
 }
+
