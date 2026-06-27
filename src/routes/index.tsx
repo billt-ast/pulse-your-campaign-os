@@ -1501,7 +1501,7 @@ function ClosingSection() {
             lifecycle — planning, operations, election day and governance.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <a className="group inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm text-primary-foreground transition-transform hover:-translate-y-0.5" href="mailto:hello@pulse.app">
+            <a className="group inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm text-primary-foreground transition-transform hover:-translate-y-0.5" href="#demo-request">
               Request private demonstration
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </a>
