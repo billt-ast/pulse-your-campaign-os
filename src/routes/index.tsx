@@ -444,20 +444,21 @@ export function Hero() {
             transition={{ duration: 0.9, delay: 0.5 }}
             className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
           >
-            <a
-              href="#closing"
+            <Link
+              to="/"
+              hash="demo-request"
               className="group inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm text-primary-foreground transition-transform hover:-translate-y-0.5"
             >
               Book private demonstration
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </a>
-            <a
-              href="#walkthrough"
+            </Link>
+            <Link
+              to="/walkthrough"
               className="inline-flex items-center gap-2 rounded-full border border-hairline bg-background/60 px-6 py-3 text-sm text-ink backdrop-blur transition-colors hover:bg-card"
             >
               Explore the platform
               <ArrowRight className="h-4 w-4" />
-            </a>
+            </Link>
           </motion.div>
         </div>
         <div className="mt-20 md:mt-28">
