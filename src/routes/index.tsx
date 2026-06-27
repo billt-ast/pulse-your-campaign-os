@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { motion, useScroll, useTransform, useReducedMotion, AnimatePresence } from "motion/react";
 import { useRef, useState, Fragment } from "react";
 import { z } from "zod";
@@ -155,49 +155,39 @@ function PulseMark({ className = "" }: { className?: string }) {
   );
 }
 
-export function Nav() {
+function Nav() {
   const [open, setOpen] = useState(false);
-  const links: ReadonlyArray<readonly [string, string]> = [
-    ["/walkthrough", "Walkthrough"],
-    ["/mission-control", "Mission Control"],
-    ["/ecosystem", "Ecosystem"],
-    ["/features", "Features"],
-    ["/governance", "Governance"],
-  ];
+  const links = [
+    ["#problem", "Problem"],
+    ["#walkthrough", "Walkthrough"],
+    ["#mission", "Mission Control"],
+    ["#ecosystem", "Ecosystem"],
+    ["#governance", "Governance"],
+  ] as const;
   return (
     <header className="fixed inset-x-0 top-0 z-50">
       <div className="container-pulse">
-        <div className="mt-3 flex items-center justify-between gap-3 rounded-full border border-hairline/80 bg-background/70 px-3 py-2 backdrop-blur-xl sm:mt-4 sm:px-5 sm:py-2.5">
-          <Link to="/" className="min-w-0">
-            <PulseMark />
-          </Link>
-          <nav className="hidden items-center gap-7 text-sm text-graphite lg:flex">
+        <div className="mt-3 flex items-center justify-between gap-3 rounded-full border border-hairline/80 bg-background/70 px-4 py-2 backdrop-blur-xl sm:mt-4 sm:px-5 sm:py-2.5">
+          <PulseMark />
+          <nav className="hidden items-center gap-8 text-sm text-graphite md:flex">
             {links.map(([href, label]) => (
-              <Link
-                key={href}
-                to={href}
-                className="hover:text-ink transition-colors"
-                activeProps={{ className: "text-ink" }}
-              >
-                {label}
-              </Link>
+              <a key={href} href={href} className="hover:text-ink transition-colors">{label}</a>
             ))}
           </nav>
           <div className="flex items-center gap-2">
-            <Link
-              to="/"
-              hash="demo-request"
+            <a
+              href="#demo-request"
               className="group hidden items-center gap-1.5 rounded-full bg-navy px-4 py-2 text-sm text-primary-foreground transition-all hover:bg-ink sm:inline-flex"
             >
               Book a demo
               <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </Link>
+            </a>
             <button
               type="button"
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
               onClick={() => setOpen((v) => !v)}
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-hairline text-ink lg:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-hairline text-ink md:hidden"
             >
               {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
@@ -211,31 +201,30 @@ export function Nav() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="container-pulse lg:hidden"
+            className="container-pulse md:hidden"
           >
             <div className="mt-2 rounded-3xl border border-hairline bg-background/95 p-5 backdrop-blur-xl shadow-lg">
               <nav className="flex flex-col divide-y divide-hairline">
                 {links.map(([href, label]) => (
-                  <Link
+                  <a
                     key={href}
-                    to={href}
+                    href={href}
                     onClick={() => setOpen(false)}
                     className="flex items-center justify-between py-3 text-base text-ink"
                   >
                     {label}
                     <ArrowUpRight className="h-4 w-4 text-graphite" />
-                  </Link>
+                  </a>
                 ))}
               </nav>
-              <Link
-                to="/"
-                hash="demo-request"
+              <a
+                href="#demo-request"
                 onClick={() => setOpen(false)}
                 className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-navy px-4 py-3 text-sm text-primary-foreground"
               >
                 Request private demonstration
                 <ArrowUpRight className="h-3.5 w-3.5" />
-              </Link>
+              </a>
             </div>
           </motion.div>
         )}
@@ -243,8 +232,6 @@ export function Nav() {
     </header>
   );
 }
-
-
 
 /* -------------------------------------------------------------------------- */
 /*  Hero                                                                      */
@@ -405,7 +392,7 @@ function HeroDashboardPreview() {
   );
 }
 
-export function Hero() {
+function Hero() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [0, -80]);
@@ -444,21 +431,20 @@ export function Hero() {
             transition={{ duration: 0.9, delay: 0.5 }}
             className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
           >
-            <Link
-              to="/"
-              hash="demo-request"
+            <a
+              href="#closing"
               className="group inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm text-primary-foreground transition-transform hover:-translate-y-0.5"
             >
               Book private demonstration
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </Link>
-            <Link
-              to="/walkthrough"
+            </a>
+            <a
+              href="#walkthrough"
               className="inline-flex items-center gap-2 rounded-full border border-hairline bg-background/60 px-6 py-3 text-sm text-ink backdrop-blur transition-colors hover:bg-card"
             >
               Explore the platform
               <ArrowRight className="h-4 w-4" />
-            </Link>
+            </a>
           </motion.div>
         </div>
         <div className="mt-20 md:mt-28">
@@ -473,10 +459,17 @@ export function Hero() {
 /*  Problem                                                                   */
 /* -------------------------------------------------------------------------- */
 
-export function ProblemSection() {
-  // Two orbital rings of disconnected channels around the Pulse core.
-  const innerChannels = ["WhatsApp groups", "Spreadsheets", "Emails", "PDFs"];
-  const outerChannels = ["Volunteer lists", "Paper maps", "Social DMs", "Phone calls"];
+function ProblemSection() {
+  const fragments = [
+    { l: "WhatsApp groups", x: "8%", y: "12%", rot: -6 },
+    { l: "Spreadsheets", x: "70%", y: "8%", rot: 4 },
+    { l: "Emails", x: "30%", y: "78%", rot: -3 },
+    { l: "PDFs", x: "82%", y: "70%", rot: 7 },
+    { l: "Volunteer lists", x: "5%", y: "55%", rot: 3 },
+    { l: "Paper maps", x: "55%", y: "32%", rot: -2 },
+    { l: "Social DMs", x: "75%", y: "44%", rot: 5 },
+    { l: "Phone calls", x: "20%", y: "30%", rot: -5 },
+  ];
   const insights = [
     "Fragmented communication",
     "Lost institutional knowledge",
@@ -485,7 +478,7 @@ export function ProblemSection() {
     "Reactive decision making",
   ];
   return (
-    <section id="problem" className="border-t border-hairline py-24 md:py-40">
+    <section id="problem" className="border-t border-hairline py-28 md:py-40">
       <div className="container-pulse">
         <SectionHeader
           index="01"
@@ -499,52 +492,66 @@ export function ProblemSection() {
           subtitle="The cost is invisible until election day — when fragmentation becomes the difference between a coordinated movement and a scattered one."
         />
 
-        <div className="relative mt-14 grid gap-10 md:mt-20 lg:grid-cols-[1.2fr_1fr]">
-          <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-hairline bg-card sm:aspect-[4/3]">
-            {/* Decorative orbit guides */}
-            <div className="pointer-events-none absolute inset-0">
-              {[42, 68, 90].map((size) => (
-                <div
-                  key={size}
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-hairline/70"
-                  style={{ width: `${size}%`, height: `${size}%` }}
-                />
-              ))}
-            </div>
-
-            {/* Outer orbit (slower) */}
-            <OrbitRing
-              channels={outerChannels}
-              radiusPct={44}
-              speed="slow"
-            />
-            {/* Inner orbit (faster) */}
-            <OrbitRing
-              channels={innerChannels}
-              radiusPct={28}
-              speed="fast"
-            />
-
-
-            {/* Center pulse */}
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="relative mt-20 grid gap-10 lg:grid-cols-[1.2fr_1fr]">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-hairline bg-card">
+            {fragments.map((f, i) => (
+              <motion.div
+                key={f.l}
+                initial={{ opacity: 0, scale: 0.9, rotate: f.rot }}
+                whileInView={{ opacity: 1, scale: 1, rotate: f.rot }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.08 }}
+                style={{ left: f.x, top: f.y }}
+                className="absolute -translate-x-1/2 -translate-y-1/2"
+              >
+                <div className="rounded-md border border-hairline bg-background px-3 py-1.5 text-xs text-graphite shadow-sm">
+                  {f.l}
+                </div>
+              </motion.div>
+            ))}
+            {/* Center pull */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.6 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1, delay: 0.8 }}
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            >
               <div className="relative">
                 <span className="absolute inset-0 rounded-full bg-civic/30 blur-2xl" />
-                <span className="absolute inset-0 rounded-full bg-civic/40 animate-pulse-ring" />
-                <div className="relative flex h-24 w-24 items-center justify-center rounded-full border border-navy/20 bg-card sm:h-28 sm:w-28">
+                <div className="relative flex h-28 w-28 items-center justify-center rounded-full border border-navy/20 bg-card">
                   <PulseMark />
                 </div>
               </div>
-            </div>
+            </motion.div>
+            {/* Lines drawing to center */}
+            <svg aria-hidden className="absolute inset-0 h-full w-full">
+              {fragments.map((f, i) => (
+                <motion.line
+                  key={i}
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  whileInView={{ pathLength: 1, opacity: 0.5 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.2, delay: 0.5 + i * 0.05 }}
+                  x1={f.x}
+                  y1={f.y}
+                  x2="50%"
+                  y2="50%"
+                  stroke="oklch(0.28 0.07 265)"
+                  strokeWidth="1"
+                  strokeDasharray="2 4"
+                />
+              ))}
+            </svg>
           </div>
 
           <ul className="flex flex-col justify-center gap-1">
             {insights.map((t, i) => (
               <Reveal key={t} delay={i * 0.08}>
-                <li className="group flex items-start gap-4 border-b border-hairline py-4 md:py-5">
+                <li className="group flex items-start gap-4 border-b border-hairline py-5">
                   <span className="mt-1 font-mono text-xs text-graphite">0{i + 1}</span>
                   <span className="flex-1 font-display text-2xl text-ink md:text-3xl">{t}</span>
-                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-civic opacity-60 group-hover:opacity-100" />
+                  <span className="mt-2 h-1.5 w-1.5 rounded-full bg-civic opacity-60 group-hover:opacity-100" />
                 </li>
               </Reveal>
             ))}
@@ -555,52 +562,11 @@ export function ProblemSection() {
   );
 }
 
-function OrbitRing({
-  channels,
-  radiusPct,
-  speed,
-}: {
-  channels: string[];
-  radiusPct: number;
-  speed: "slow" | "fast";
-}) {
-  const orbitClass = speed === "slow" ? "animate-orbit-slow" : "animate-orbit-fast";
-  const counterClass =
-    speed === "slow" ? "animate-counter-orbit-slow" : "animate-counter-orbit-fast";
-  return (
-    <div className={`pointer-events-none absolute inset-0 ${orbitClass}`}>
-      {channels.map((c, i) => {
-        const angle = (i / channels.length) * Math.PI * 2;
-        const x = 50 + radiusPct * Math.cos(angle);
-        const y = 50 + radiusPct * Math.sin(angle);
-        return (
-          <div
-            key={c}
-            className="absolute -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${x}%`, top: `${y}%` }}
-          >
-            {/* Counter-rotate so labels stay upright */}
-            <div className={counterClass}>
-              <div
-                className="animate-soft-pulse rounded-md border border-hairline bg-background px-2.5 py-1 text-[11px] text-graphite shadow-sm sm:px-3 sm:py-1.5 sm:text-xs"
-                style={{ animationDelay: `${i * 0.35}s` }}
-              >
-                {c}
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-
 /* -------------------------------------------------------------------------- */
 /*  Pulse Concept (architecture)                                              */
 /* -------------------------------------------------------------------------- */
 
-export function ConceptSection() {
+function ConceptSection() {
   const layers = [
     { l: "Data layer", d: "Communities, volunteers, regions, issues." },
     { l: "Coordination layer", d: "Tasks, events, communications, approvals." },
@@ -719,7 +685,7 @@ const chapters = [
   },
 ];
 
-export function WalkthroughSection() {
+function WalkthroughSection() {
   return (
     <section id="walkthrough" className="border-t border-hairline py-28 md:py-40">
       <div className="container-pulse">
@@ -1010,7 +976,7 @@ function ElectionPreview() {
 /*  Mission Control                                                           */
 /* -------------------------------------------------------------------------- */
 
-export function MissionControlSection() {
+function MissionControlSection() {
   const overlays = [
     "Campaign Pulse Score",
     "Operational Health Rings",
@@ -1165,7 +1131,7 @@ const modules = [
   "Feedback Loops", "Election Transition", "Governance Continuity",
 ];
 
-export function EcosystemSection() {
+function EcosystemSection() {
   return (
     <section id="ecosystem" className="border-t border-hairline py-28 md:py-40">
       <div className="container-pulse">
@@ -1291,7 +1257,7 @@ const showcases = [
   },
 ];
 
-export function InteractiveFeatures() {
+function InteractiveFeatures() {
   const [active, setActive] = useState(0);
   const item = showcases[active];
   const Icon = item.icon;
@@ -1391,7 +1357,7 @@ export function InteractiveFeatures() {
 /*  Intelligence                                                              */
 /* -------------------------------------------------------------------------- */
 
-export function IntelligenceSection() {
+function IntelligenceSection() {
   const tiles = [
     { icon: Users, l: "Community Growth", v: "+18%", d: "Last 30 days" },
     { icon: Activity, l: "Operational Timeline", v: "94%", d: "Milestones on track" },
@@ -1440,7 +1406,7 @@ export function IntelligenceSection() {
 /*  Governance transition                                                     */
 /* -------------------------------------------------------------------------- */
 
-export function GovernanceSection() {
+function GovernanceSection() {
   const pairs: [string, string][] = [
     ["Manifesto", "Development Plan"],
     ["Community", "Citizen Communities"],
@@ -1514,7 +1480,7 @@ export function GovernanceSection() {
 /*  Closing                                                                   */
 /* -------------------------------------------------------------------------- */
 
-export function ClosingSection() {
+function ClosingSection() {
   return (
     <section id="closing" className="relative overflow-hidden border-t border-hairline py-32 md:py-48">
       <NetworkBackdrop />
@@ -1595,7 +1561,7 @@ const TIMELINES = [
   "Exploring for a future cycle",
 ];
 
-export function DemoRequestSection() {
+function DemoRequestSection() {
   const [form, setForm] = useState<DemoForm>({
     name: "", email: "", organization: "", role: "", timeline: "",
   });
@@ -1846,7 +1812,7 @@ function DemoField({
 /* -------------------------------------------------------------------------- */
 
 
-export function Footer() {
+function Footer() {
   return (
     <footer className="border-t border-hairline py-10">
       <div className="container-pulse flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
@@ -1867,134 +1833,20 @@ export function Footer() {
 /*  Page                                                                      */
 /* -------------------------------------------------------------------------- */
 
-/* -------------------------------------------------------------------------- */
-/*  Section teasers — link to dedicated pages                                 */
-/* -------------------------------------------------------------------------- */
-
-const sectionTeasers: ReadonlyArray<{
-  to: "/walkthrough" | "/mission-control" | "/ecosystem" | "/features" | "/governance";
-  index: string;
-  eyebrow: string;
-  title: string;
-  body: string;
-  icon: typeof Activity;
-}> = [
-  {
-    to: "/walkthrough",
-    index: "03",
-    eyebrow: "Follow a campaign",
-    title: "An entire election lifecycle, scroll by scroll.",
-    body: "Six chapters across planning, volunteers, community, comms, polling and election day.",
-    icon: Calendar,
-  },
-  {
-    to: "/mission-control",
-    index: "04",
-    eyebrow: "Mission Control",
-    title: "The single pane of glass for leadership.",
-    body: "Strategy, operations, communications and movement health — viewed from one workspace.",
-    icon: Activity,
-  },
-  {
-    to: "/ecosystem",
-    index: "05",
-    eyebrow: "Everything connected",
-    title: "One core. Twenty-three modules. Zero seams.",
-    body: "An ecosystem of workspaces that share data, permissions and operating language.",
-    icon: Layers,
-  },
-  {
-    to: "/features",
-    index: "06",
-    eyebrow: "Explore every workspace",
-    title: "Eight signature surfaces. Pick one.",
-    body: "Campaign management, community, manifesto, polls, projects, issues, mapping and QR distribution.",
-    icon: Sparkles,
-  },
-  {
-    to: "/governance",
-    index: "08",
-    eyebrow: "Governance transition",
-    title: "The campaign doesn't end on election day.",
-    body: "Pulse preserves institutional knowledge and relationships into governance delivery.",
-    icon: Building2,
-  },
-];
-
-function SectionTeasers() {
-  return (
-    <section className="border-t border-hairline bg-secondary/40 py-24 md:py-32">
-      <div className="container-pulse">
-        <SectionHeader
-          index="02"
-          eyebrow="Explore Pulse"
-          title={<>The full product, <span className="italic text-navy">page by page</span>.</>}
-          subtitle="Each chapter of the Pulse experience lives on its own page — load only what you need, share a link to any part of the story."
-        />
-        <div className="mt-12 grid gap-4 sm:gap-5 md:mt-16 md:grid-cols-2 lg:grid-cols-3">
-          {sectionTeasers.map((s, i) => {
-            const Icon = s.icon;
-            return (
-              <Reveal key={s.to} delay={(i % 3) * 0.08}>
-                <Link
-                  to={s.to}
-                  className="group relative flex h-full flex-col gap-4 rounded-2xl border border-hairline bg-card p-6 transition-all hover:-translate-y-0.5 hover:border-navy/30 hover:shadow-[0_20px_50px_-30px_rgba(20,30,60,0.25)]"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-hairline text-graphite group-hover:border-civic/30 group-hover:text-civic">
-                      <Icon className="h-4 w-4" />
-                    </span>
-                    <span className="font-mono text-[10px] text-graphite">{s.index}</span>
-                  </div>
-                  <div className="space-y-2">
-                    <span className="text-[11px] uppercase tracking-[0.18em] text-civic">
-                      {s.eyebrow}
-                    </span>
-                    <h3 className="font-display text-2xl leading-tight text-ink md:text-[26px]">
-                      {s.title}
-                    </h3>
-                    <p className="text-sm leading-relaxed text-graphite">{s.body}</p>
-                  </div>
-                  <span className="mt-auto inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] text-ink">
-                    Open page
-                    <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </span>
-                </Link>
-              </Reveal>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Shared shell for dedicated section pages                                  */
-/* -------------------------------------------------------------------------- */
-
-export function PulseShell({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
-      <Nav />
-      <main className="pt-28 md:pt-32">{children}</main>
-      <ClosingSection />
-      <DemoRequestSection />
-      <Footer />
-    </div>
-  );
-}
-
 function PulseLanding() {
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       <Nav />
       <main>
         <Hero />
         <ProblemSection />
         <ConceptSection />
-        <SectionTeasers />
+        <WalkthroughSection />
+        <MissionControlSection />
+        <EcosystemSection />
+        <InteractiveFeatures />
         <IntelligenceSection />
+        <GovernanceSection />
         <ClosingSection />
         <DemoRequestSection />
       </main>
@@ -2002,4 +1854,3 @@ function PulseLanding() {
     </div>
   );
 }
-
