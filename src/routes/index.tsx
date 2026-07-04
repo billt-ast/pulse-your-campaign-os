@@ -166,12 +166,18 @@ function Nav() {
   ] as const;
   return (
     <header className="fixed inset-x-0 top-0 z-50">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-primary-foreground"
+      >
+        Skip to main content
+      </a>
       <div className="container-pulse">
         <div className="mt-3 flex items-center justify-between gap-3 rounded-full border border-hairline/80 bg-background/70 px-4 py-2 backdrop-blur-xl sm:mt-4 sm:px-5 sm:py-2.5">
           <PulseMark />
-          <nav className="hidden items-center gap-8 text-sm text-graphite md:flex">
+          <nav aria-label="Primary" className="hidden items-center gap-8 text-sm text-graphite md:flex">
             {links.map(([href, label]) => (
-              <a key={href} href={href} className="hover:text-ink transition-colors">{label}</a>
+              <a key={href} href={href} className="rounded-sm hover:text-ink transition-colors">{label}</a>
             ))}
           </nav>
           <div className="flex items-center gap-2">
@@ -186,8 +192,9 @@ function Nav() {
               type="button"
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
+              aria-controls="mobile-nav"
               onClick={() => setOpen((v) => !v)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-hairline text-ink md:hidden"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-hairline text-ink md:hidden"
             >
               {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
@@ -197,6 +204,7 @@ function Nav() {
       <AnimatePresence>
         {open && (
           <motion.div
+            id="mobile-nav"
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
@@ -204,7 +212,7 @@ function Nav() {
             className="container-pulse md:hidden"
           >
             <div className="mt-2 rounded-3xl border border-hairline bg-background/95 p-5 backdrop-blur-xl shadow-lg">
-              <nav className="flex flex-col divide-y divide-hairline">
+              <nav aria-label="Mobile" className="flex flex-col divide-y divide-hairline">
                 {links.map(([href, label]) => (
                   <a
                     key={href}
@@ -213,7 +221,7 @@ function Nav() {
                     className="flex items-center justify-between py-3 text-base text-ink"
                   >
                     {label}
-                    <ArrowUpRight className="h-4 w-4 text-graphite" />
+                    <ArrowUpRight className="h-4 w-4 text-graphite" aria-hidden="true" />
                   </a>
                 ))}
               </nav>
@@ -223,7 +231,7 @@ function Nav() {
                 className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-navy px-4 py-3 text-sm text-primary-foreground"
               >
                 Request private demonstration
-                <ArrowUpRight className="h-3.5 w-3.5" />
+                <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
               </a>
             </div>
           </motion.div>
@@ -1277,7 +1285,9 @@ function InteractiveFeatures() {
               return (
                 <li key={s.module}>
                   <button
+                    type="button"
                     onClick={() => setActive(i)}
+                    aria-pressed={isActive}
                     className={`group flex w-full items-center gap-4 rounded-xl border px-4 py-4 text-left transition-all ${
                       isActive
                         ? "border-navy/30 bg-card shadow-sm"
@@ -1801,7 +1811,7 @@ function DemoField({
       </Label>
       {children}
       {error && (
-        <span className="text-[11px] font-medium text-destructive">{error}</span>
+        <span role="alert" className="text-[11px] font-medium text-destructive">{error}</span>
       )}
     </div>
   );
@@ -1837,7 +1847,7 @@ function PulseLanding() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Nav />
-      <main>
+      <main id="main-content">
         <Hero />
         <ProblemSection />
         <ConceptSection />
