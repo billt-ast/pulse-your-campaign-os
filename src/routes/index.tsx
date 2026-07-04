@@ -1845,7 +1845,7 @@ function PulseLanding() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Nav />
-      <main>
+      <main id="main-content">
         <Hero />
         <ProblemSection />
         <ConceptSection />
