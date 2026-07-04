@@ -1285,7 +1285,9 @@ function InteractiveFeatures() {
               return (
                 <li key={s.module}>
                   <button
+                    type="button"
                     onClick={() => setActive(i)}
+                    aria-pressed={isActive}
                     className={`group flex w-full items-center gap-4 rounded-xl border px-4 py-4 text-left transition-all ${
                       isActive
                         ? "border-navy/30 bg-card shadow-sm"
