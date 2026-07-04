@@ -1809,7 +1809,7 @@ function DemoField({
       </Label>
       {children}
       {error && (
-        <span className="text-[11px] font-medium text-destructive">{error}</span>
+        <span role="alert" className="text-[11px] font-medium text-destructive">{error}</span>
       )}
     </div>
   );
