@@ -1,2 +1,8 @@
-// @pulse/analytics — barrel. See README.md.
-export {};
+/**
+ * analytics service — event track + query.
+ *
+ * Import contracts from `@/services/analytics` to build typed server fns and
+ * client forms. Implementations live in future `*.functions.ts` files under
+ * this folder. See ../README.md for boundary rules.
+ */
+export * from "./contracts";
