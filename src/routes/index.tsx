@@ -468,15 +468,38 @@ function Hero() {
 /* -------------------------------------------------------------------------- */
 
 function ProblemSection() {
-  const fragments = [
-    { l: "WhatsApp groups", x: "8%", y: "12%", rot: -6 },
-    { l: "Spreadsheets", x: "70%", y: "8%", rot: 4 },
-    { l: "Emails", x: "30%", y: "78%", rot: -3 },
-    { l: "PDFs", x: "82%", y: "70%", rot: 7 },
-    { l: "Volunteer lists", x: "5%", y: "55%", rot: 3 },
-    { l: "Paper maps", x: "55%", y: "32%", rot: -2 },
-    { l: "Social DMs", x: "75%", y: "44%", rot: 5 },
-    { l: "Phone calls", x: "20%", y: "30%", rot: -5 },
+  // Orbital rings: each ring holds chips at fixed angles, the ring rotates,
+  // chips counter-rotate to keep text upright, and each chip gently pulsates.
+  const rings: { radius: number; duration: number; direction: 1 | -1; chips: { l: string; angle: number }[] }[] = [
+    {
+      radius: 22,
+      duration: 42,
+      direction: 1,
+      chips: [
+        { l: "Spreadsheets", angle: 40 },
+        { l: "PDFs", angle: 210 },
+      ],
+    },
+    {
+      radius: 34,
+      duration: 60,
+      direction: -1,
+      chips: [
+        { l: "Paper maps", angle: 100 },
+        { l: "WhatsApp groups", angle: 160 },
+        { l: "Social DMs", angle: 20 },
+        { l: "Emails", angle: 285 },
+      ],
+    },
+    {
+      radius: 46,
+      duration: 90,
+      direction: 1,
+      chips: [
+        { l: "Volunteer lists", angle: 200 },
+        { l: "Phone calls", angle: 320 },
+      ],
+    },
   ];
   const insights = [
     "Fragmented communication",
@@ -501,28 +524,62 @@ function ProblemSection() {
         />
 
         <div className="relative mt-20 grid gap-10 lg:grid-cols-[1.2fr_1fr]">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-hairline bg-card">
-            {fragments.map((f, i) => (
+          <div className="relative mx-auto aspect-square w-full max-w-[560px] overflow-hidden rounded-2xl border border-hairline bg-card">
+            {/* Concentric orbit rings */}
+            {rings.map((ring, i) => (
+              <div
+                key={`ring-${i}`}
+                aria-hidden
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-navy/10"
+                style={{ width: `${ring.radius * 2}%`, height: `${ring.radius * 2}%` }}
+              />
+            ))}
+
+            {/* Rotating chip layers */}
+            {rings.map((ring, ri) => (
               <motion.div
-                key={f.l}
-                initial={{ opacity: 0, scale: 0.9, rotate: f.rot }}
-                whileInView={{ opacity: 1, scale: 1, rotate: f.rot }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.08 }}
-                style={{ left: f.x, top: f.y }}
-                className="absolute -translate-x-1/2 -translate-y-1/2"
+                key={`orbit-${ri}`}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                style={{ width: `${ring.radius * 2}%`, height: `${ring.radius * 2}%` }}
+                animate={{ rotate: ring.direction * 360 }}
+                transition={{ duration: ring.duration, ease: "linear", repeat: Infinity }}
               >
-                <div className="rounded-md border border-hairline bg-background px-3 py-1.5 text-xs text-graphite shadow-sm">
-                  {f.l}
-                </div>
+                {ring.chips.map((chip, ci) => {
+                  const rad = (chip.angle * Math.PI) / 180;
+                  const x = 50 + 50 * Math.cos(rad);
+                  const y = 50 + 50 * Math.sin(rad);
+                  return (
+                    <motion.div
+                      key={chip.l}
+                      className="absolute -translate-x-1/2 -translate-y-1/2"
+                      style={{ left: `${x}%`, top: `${y}%` }}
+                      animate={{ rotate: -ring.direction * 360 }}
+                      transition={{ duration: ring.duration, ease: "linear", repeat: Infinity }}
+                    >
+                      <motion.div
+                        animate={{ scale: [1, 1.06, 1], opacity: [0.9, 1, 0.9] }}
+                        transition={{
+                          duration: 2.8 + ci * 0.3,
+                          ease: "easeInOut",
+                          repeat: Infinity,
+                          delay: (ri + ci) * 0.25,
+                        }}
+                        className="whitespace-nowrap rounded-md border border-hairline bg-background px-3 py-1.5 text-xs text-graphite shadow-sm"
+                      >
+                        {chip.l}
+                      </motion.div>
+                    </motion.div>
+                  );
+                })}
               </motion.div>
             ))}
-            {/* Center pull */}
+
+            {/* Center pulse core */}
             <motion.div
               initial={{ opacity: 0, scale: 0.6 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 1, delay: 0.8 }}
+              transition={{ duration: 1, delay: 0.4 }}
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
             >
               <div className="relative">
@@ -532,25 +589,6 @@ function ProblemSection() {
                 </div>
               </div>
             </motion.div>
-            {/* Lines drawing to center */}
-            <svg aria-hidden className="absolute inset-0 h-full w-full">
-              {fragments.map((f, i) => (
-                <motion.line
-                  key={i}
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  whileInView={{ pathLength: 1, opacity: 0.5 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1.2, delay: 0.5 + i * 0.05 }}
-                  x1={f.x}
-                  y1={f.y}
-                  x2="50%"
-                  y2="50%"
-                  stroke="oklch(0.28 0.07 265)"
-                  strokeWidth="1"
-                  strokeDasharray="2 4"
-                />
-              ))}
-            </svg>
           </div>
 
           <ul className="flex flex-col justify-center gap-1">
