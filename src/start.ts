@@ -7,12 +7,16 @@ import { logger } from "@/libs/logging";
 
 // Fail-fast env validation — throws a formatted error listing every missing
 // or malformed variable if the server is misconfigured at startup.
-try {
-  assertServerEnv();
-  logger.info("server env validated");
-} catch (error) {
-  logger.error("server env validation failed", { error: (error as Error).message });
-  throw error;
+// Only run on the server — `process.env` is undefined in the browser bundle,
+// and importing this module client-side must not throw.
+if (typeof window === "undefined") {
+  try {
+    assertServerEnv();
+    logger.info("server env validated");
+  } catch (error) {
+    logger.error("server env validation failed", { error: (error as Error).message });
+    throw error;
+  }
 }
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
