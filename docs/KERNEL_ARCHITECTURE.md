@@ -46,8 +46,8 @@ kernel contract checklist.
 `resolveBootOrder()` topologically sorts the registry, producing:
 
 ```text
-security → data → identity → context → event → integration → storage →
-knowledge → mission → workflow → spatial → analytics → notification → ai → design
+security → data → identity → context → event → mission → workflow → storage →
+knowledge → integration → spatial → analytics → notification → ai → design
 ```
 
 `bootKernel()` initializes modules in that order and hands each one a handle
