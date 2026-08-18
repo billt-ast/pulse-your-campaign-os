@@ -76,6 +76,167 @@ domain or application module.
 - Platform boots with mocked infrastructure — `bootKernel()` boots 15 modules.
 - Real infrastructure attachable later without domain changes — adapter seam.
 
+## Layer diagram
+
+```mermaid
+graph TD
+  subgraph APP["Applications"]
+    A1[Mission Control]
+    A2[Admin Console]
+    A3[Public Portal]
+    A4[Mobile]
+  end
+  subgraph KRN["Pulse Kernels"]
+    K1[Identity]
+    K2[Mission]
+    K3[Context]
+    K4[Workflow]
+    K5[Spatial]
+    K6[Knowledge]
+    K7[Analytics]
+    K8[Event]
+    K9[Notification]
+    K10[Platform Data]
+    K11[Storage]
+    K12[Integration]
+    K13[Security]
+    K14[AI]
+    K15[Design]
+  end
+  subgraph INF["Infrastructure connectors"]
+    I1[Supabase]
+    I2[Neon]
+    I3[MongoDB Atlas]
+    I4[Redis]
+    I5[Blob Storage]
+    I6[Mapbox]
+    I7[Twilio]
+    I8[Meta / Google / Microsoft]
+    I9[Resend]
+  end
+  APP --> KRN
+  KRN --> INF
+```
+
+## Boot sequence diagram
+
+```mermaid
+graph LR
+  security --> data --> identity --> context --> event --> mission --> workflow
+  workflow --> storage --> knowledge --> integration --> spatial --> analytics
+  analytics --> notification --> ai --> design --> apps[Start Applications]
+```
+
+## Event flow — nothing calls anything directly
+
+```mermaid
+flowchart LR
+  P[Project Updated] --> B((Event Kernel bus))
+  B --> N[Notification]
+  B --> AN[Analytics]
+  B --> S[Search / Knowledge]
+  B --> T[Timeline]
+  B --> AI[AI]
+  B --> AU[Security audit]
+  B -.retry / DLQ.-> B
+```
+
+## Domain contract modules mapped to kernels
+
+19 domain contract modules live under `src/services/*/contracts.ts`. Each one
+is a *bounded context* whose schemas must be consumed through exactly one
+owning kernel.
+
+| # | Domain module | Owning kernel | Relationship |
+| --- | --- | --- | --- |
+| 1 | `identity` | Identity | direct — profiles, sessions |
+| 2 | `permissions` | Identity | folds in — role grants are `PermissionEngine` inputs |
+| 3 | `organizations` | Mission | direct — tenant root |
+| 4 | `campaigns` | Mission | projection — missions of type `campaign` |
+| 5 | `projects` | Mission | direct — projects under programs |
+| 6 | `communities` | Mission | direct — constituency grouping |
+| 7 | `issues` | Mission + Knowledge | mission-owned records, knowledge-indexed |
+| 8 | `events` (calendar) | Mission + Workflow | scheduling belongs to Workflow timers |
+| 9 | `documents` | Knowledge + Storage | metadata to Knowledge, bytes to Storage |
+| 10 | `knowledge` | Knowledge | direct |
+| 11 | `search` | Knowledge | folds in — search is a Knowledge capability |
+| 12 | `media` | Storage | direct — assets and versions |
+| 13 | `gis` | Spatial | direct — features, layers, boundaries |
+| 14 | `analytics` | Analytics | direct — track + query |
+| 15 | `notifications` | Notification | direct — in-app / push / realtime |
+| 16 | `communications` | Notification + Integration | email/SMS via vendor adapters |
+| 17 | `integrations` | Integration | direct — connector registry |
+| 18 | `audit` | Security | folds in — `AuditLogger` read model |
+| 19 | `ai` | AI | direct — completions |
+
+```mermaid
+graph LR
+  identity --> KIdentity[Identity Kernel]
+  permissions --> KIdentity
+  organizations --> KMission[Mission Kernel]
+  campaigns --> KMission
+  projects --> KMission
+  communities --> KMission
+  issues --> KMission
+  issues --> KKnowledge[Knowledge Kernel]
+  events --> KMission
+  events --> KWorkflow[Workflow Kernel]
+  documents --> KKnowledge
+  documents --> KStorage[Storage Kernel]
+  knowledge --> KKnowledge
+  search --> KKnowledge
+  media --> KStorage
+  gis --> KSpatial[Spatial Kernel]
+  analytics --> KAnalytics[Analytics Kernel]
+  notifications --> KNotification[Notification Kernel]
+  communications --> KNotification
+  communications --> KIntegration[Integration Kernel]
+  integrations --> KIntegration
+  audit --> KSecurity[Security Kernel]
+  ai --> KAI[AI Kernel]
+```
+
+## Gap analysis
+
+### Kernels with no domain contract module yet
+| Kernel | Status | What is missing |
+| --- | --- | --- |
+| Context | contract only | No `services/context` — runtime context resolvers (org/workspace/mission/geography) and a React provider for applications. Due 2B.1.3. |
+| Workflow | contract only | No workflow definitions, approval or escalation contracts; calendar/task scheduling still lives in `services/events`. Due 2B.1.3. |
+| Platform Data | contract only | No repository implementations, migrations or read models; every repository is in-memory. Due 2B.1.4. |
+| Event | contract + memory bus | No durable transport, retry policy config or DLQ inspection surface; `libs/events` and `libs/queues` are empty barrels. Due 2B.1.5. |
+| Security | contract + memory adapter | Encryption is base64 placeholder; no policy definitions, threat detection or compliance reporting. Hardening in 2B.1.4. |
+| Design | contract + memory adapter | Tokens exposed, but no motion/chart/map token coverage or accessibility contract; overlaps `packages/design-system`, `packages/theme`. Due 2B.1.2. |
+| Storage | contract only | `services/media` has no upload/signed-URL contracts; buckets not provisioned. Due 2B.1.4. |
+| Mission | contract only, adapter pending | `missions`, `programs`, `objectives`, `tasks` have no contract module of their own — only the `campaigns` projection. Needs `services/missions`. Due 2B.1.3. |
+
+### Domain modules with no kernel home yet
+None. All 19 map to an existing kernel, but three need restructuring:
+- `search` should become a Knowledge Kernel capability, not a peer service.
+- `events` (calendar) splits: entities to Mission, scheduling to Workflow.
+- `communications` and `notifications` should collapse into one Notification
+  Kernel surface with Integration adapters underneath.
+
+### Missing contract coverage inside existing modules
+| Module | Missing |
+| --- | --- |
+| `mission` domain | `objective`, `task`, `phase` schemas (Mission Kernel declares them; validators do not define them) |
+| `identity` | invitations, MFA enrolment, SSO/SAML connection contracts |
+| `knowledge` | embedding + graph-edge contracts required by the AI Kernel |
+| `spatial` | shapefile ingest job, coordinate-system and tile-layer contracts |
+| `analytics` | forecast and executive-summary request/response shapes |
+| `workflow` | entire module absent |
+| `context` | entire module absent |
+
+### Cross-cutting gaps
+- No kernel currently publishes health to an HTTP endpoint; `bootKernel().health()`
+  exists but is not exposed under `/api/public/health`.
+- `libs/cache`, `libs/database`, `libs/events`, `libs/queues`, `libs/security`,
+  `libs/storage` are still empty barrels and must become the adapter homes.
+- Applications still import `@/integrations/supabase/client` directly in
+  `src/routes/_authenticated/route.tsx`; that is the one sanctioned bypass
+  until the Identity Kernel adapter lands in 2B.1.3.
+
 ## Roadmap
 | Phase | Scope |
 | --- | --- |
