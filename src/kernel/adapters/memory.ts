@@ -30,7 +30,7 @@ import { integrationKernelMeta } from "../contracts/integration";
 import { storageKernelMeta } from "../contracts/storage";
 import { aiKernelMeta } from "../contracts/ai";
 import { designKernelMeta, type DesignKernelApi } from "../contracts/design";
-import { tokens } from "@/components/pulse/tokens";
+import { palette, motion, layout, chartColors } from "@/components/pulse/tokens";
 
 /** Marker error thrown by adapters whose live implementation lands later. */
 export class NotImplementedYet extends Error {
@@ -316,15 +316,20 @@ function createMemoryIdentity(): IdentityKernelApi {
 function createMemoryDesign(context: ContextKernelApi): DesignKernelApi {
   return {
     tokens: () => ({
-      color: { ...(tokens.color as Record<string, string>) },
-      typography: { ...(tokens.typography as Record<string, string>) },
-      spacing: { ...(tokens.spacing as Record<string, string>) },
-      radius: { ...(tokens.radius as Record<string, string>) },
-      motion: { ...(tokens.motion as Record<string, string>) },
+      color: { ...palette } as Record<string, string>,
+      typography: { serif: "var(--font-serif)", sans: "var(--font-sans)" },
+      spacing: { section: layout.section, gutter: layout.gutter } as Record<string, string>,
+      radius: { card: "var(--radius)", pill: "9999px" },
+      motion: {
+        fast: String(motion.duration.fast),
+        base: String(motion.duration.base),
+        slow: String(motion.duration.slow),
+        cinematic: String(motion.duration.cinematic),
+      },
     }),
     theme: () => context.current().theme,
     setTheme: (theme) => void context.set({ theme }),
-    chartPalette: () => ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"],
+    chartPalette: () => [...chartColors],
   };
 }
 
