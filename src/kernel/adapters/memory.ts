@@ -318,7 +318,11 @@ function createMemoryDesign(context: ContextKernelApi): DesignKernelApi {
     tokens: () => ({
       color: { ...palette } as Record<string, string>,
       typography: { serif: "var(--font-serif)", sans: "var(--font-sans)" },
-      spacing: { section: layout.section, gutter: layout.gutter } as Record<string, string>,
+      spacing: {
+        sidebar: `${layout.sidebarWidth}px`,
+        topbar: `${layout.topbarHeight}px`,
+        content: `${layout.contentMaxWidth}px`,
+      },
       radius: { card: "var(--radius)", pill: "9999px" },
       motion: {
         fast: String(motion.duration.fast),
