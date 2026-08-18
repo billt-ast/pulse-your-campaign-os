@@ -1,5 +1,9 @@
 # Architecture
 
+> **Kernel-first:** as of Phase 2B.1.1 every application talks to the Pulse
+> Kernel (`src/kernel`), never to databases or vendors directly. See
+> [`KERNEL_ARCHITECTURE.md`](./KERNEL_ARCHITECTURE.md).
+
 ## 1. Platform reality vs. original constitution
 
 The Phase 2B.1.1 constitution names Next.js 15, NestJS, pnpm monorepo,
