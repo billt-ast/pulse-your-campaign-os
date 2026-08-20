@@ -143,9 +143,11 @@ flowchart LR
 
 ## Domain contract modules mapped to kernels
 
-19 domain contract modules live under `src/services/*/contracts.ts`. Each one
+27 domain contract modules live under `src/services/*/contracts.ts`. Each one
 is a *bounded context* whose schemas must be consumed through exactly one
-owning kernel.
+owning kernel. The 19 original modules are joined by 8 platform modules added
+in 2B.1.1E so every kernel now has a contract home.
+
 
 | # | Domain module | Owning kernel | Relationship |
 | --- | --- | --- | --- |
