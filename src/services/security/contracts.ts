@@ -50,6 +50,8 @@ export const rateLimitResult = z.object({
   remaining: z.number().int().nonnegative(),
   resetAt: isoTimestamp,
 });
+export type RateLimitResult = z.infer<typeof rateLimitResult>;
+export type RateLimitRule = z.infer<typeof rateLimitRule>;
 
 export const auditEntry = z.object({
   id: uuid,
