@@ -170,6 +170,15 @@ in 2B.1.1E so every kernel now has a contract home.
 | 17 | `integrations` | Integration | direct — connector registry |
 | 18 | `audit` | Security | folds in — `AuditLogger` read model |
 | 19 | `ai` | AI | direct — completions |
+| 20 | `missions` | Mission | direct — missions, phases, objectives, tasks (canonical) |
+| 21 | `workflow` | Workflow | direct — definitions, instances, approvals, escalations, schedules |
+| 22 | `context` | Context | direct — runtime context resolution + scoping |
+| 23 | `data` | Platform Data | direct — query specs, cache keys, migrations, health |
+| 24 | `event-bus` | Event | direct — publish/subscribe, queues, retries, dead letters |
+| 25 | `security` | Security | direct — policies, secret refs, rate limits, audit, compliance |
+| 26 | `design` | Design | direct — tokens, palettes, motion, accessibility contract |
+| 27 | `storage` | Storage | direct — buckets, uploads, signed URLs, versions |
+
 
 ```mermaid
 graph LR
@@ -198,46 +207,91 @@ graph LR
   ai --> KAI[AI Kernel]
 ```
 
+## Entity schemas added in 2B.1.1E
+
+All shapes live in `@/packages/validators` and are composed by the domain
+modules listed above. Nothing here touches infrastructure yet — these are the
+contracts adapters must satisfy in 2B.1.3–2B.1.5.
+
+| Area | Schemas | Consumed by |
+| --- | --- | --- |
+| Mission depth | `missionPhase`, `objective`, `task` (+ `objectiveStatus`, `taskStatus`, `taskPriority`) | `services/missions` → Mission Kernel |
+| Identity depth | `invitation`, `mfaFactor`, `ssoConnection` (+ `roleName`, `mfaMethod`, `ssoProtocol`) | `services/identity` → Identity Kernel |
+| Knowledge depth | `embedding`, `knowledgeGraphEdge` (+ `embeddingModel`, `graphEdgeKind`) | `services/knowledge` → Knowledge + AI Kernels |
+| Spatial depth | `spatialIngestJob`, `tileLayer` (+ `spatialFormat`, `coordinateSystem`, `ingestJobStatus`) | `services/gis` → Spatial Kernel |
+| Analytics depth | `metricQuery`, `series`, `forecastRequest`, `forecast`, `executiveSummary` | `services/analytics` → Analytics Kernel |
+
+Validation rules worth noting:
+- `objective.target`/`current` are unitful numbers; progress updates go through
+  `updateObjectiveProgressRequest`, never a raw row write.
+- `invitation.token` is opaque (16–256 chars) and never returned to list views.
+- `secretReference.name` must be `UPPER_SNAKE`; secret *values* never cross a
+  contract boundary.
+- `spatialIngestJob.crs` defaults to `EPSG:4326`; ingest is asynchronous, so
+  every job carries `status`, `featureCount` and `error`.
+- `forecastRequest.horizonDays` is capped at 365 and every forecast point
+  carries `lower`/`upper` confidence bounds.
+- `workflow.scheduleRequest.cron` is regex-validated with an explicit timezone
+  (default `Africa/Nairobi`).
+
+## Adapter homes (`libs/*`)
+
+Each empty barrel is now a typed adapter port. Kernels bind one implementation
+at boot; domain code never imports a vendor SDK.
+
+| Lib | Port | Providers planned |
+| --- | --- | --- |
+| `libs/database` | `DatabaseAdapter` (+ `databaseAdapters` registry) | memory, supabase, neon, mongo |
+| `libs/cache` | `CacheAdapter`, `cacheKeyOf()` | memory, redis, kv |
+| `libs/events` | `EventTransportAdapter`, `matchesPattern()` | memory, postgres outbox, redis streams, cf queues |
+| `libs/queues` | `QueueAdapter`, `defaultRetryPolicy` | memory, cf queues, redis, pg-boss |
+| `libs/security` | `EncryptionAdapter`, `SecretsAdapter`, `PolicyAdapter`, `RateLimiterAdapter`, `AuditSinkAdapter`, `timingSafeEqual()` | dev base64, WebCrypto AES-GCM, KMS |
+| `libs/storage` | `StorageAdapter`, `objectPath()` | memory, supabase storage, R2, S3 |
+
+## Boot smoke suite
+
+`tests/kernel/kernel-boot.test.ts` (22 tests, `bun run test`, wired into
+`.github/workflows/ci.yml`) asserts with in-memory adapters only:
+acyclic registry and full kernel coverage, dependency-before-dependent boot
+order (`security … design`), resolvable API + healthy report for all 15
+kernels, rejection of undeclared cross-kernel resolution, fail-fast on a
+missing module, security/data/context/event/queue/design round-trips,
+dead-letter capture, `NotImplementedYet` for deferred operations, and
+idempotent shutdown that releases every kernel.
+
 ## Gap analysis
 
 ### Kernels with no domain contract module yet
-| Kernel | Status | What is missing |
+None. Every one of the 15 kernels now has a contract module (see the mapping
+table). Remaining work is adapters, not contracts:
+
+| Kernel | Status | Still outstanding |
 | --- | --- | --- |
-| Context | contract only | No `services/context` — runtime context resolvers (org/workspace/mission/geography) and a React provider for applications. Due 2B.1.3. |
-| Workflow | contract only | No workflow definitions, approval or escalation contracts; calendar/task scheduling still lives in `services/events`. Due 2B.1.3. |
-| Platform Data | contract only | No repository implementations, migrations or read models; every repository is in-memory. Due 2B.1.4. |
-| Event | contract + memory bus | No durable transport, retry policy config or DLQ inspection surface; `libs/events` and `libs/queues` are empty barrels. Due 2B.1.5. |
-| Security | contract + memory adapter | Encryption is base64 placeholder; no policy definitions, threat detection or compliance reporting. Hardening in 2B.1.4. |
-| Design | contract + memory adapter | Tokens exposed, but no motion/chart/map token coverage or accessibility contract; overlaps `packages/design-system`, `packages/theme`. Due 2B.1.2. |
-| Storage | contract only | `services/media` has no upload/signed-URL contracts; buckets not provisioned. Due 2B.1.4. |
-| Mission | contract only, adapter pending | `missions`, `programs`, `objectives`, `tasks` have no contract module of their own — only the `campaigns` projection. Needs `services/missions`. Due 2B.1.3. |
+| Context | contracts + memory adapter | React provider + request-scoped propagation. 2B.1.3. |
+| Workflow | contracts only | No engine: instances, timers and escalations are unimplemented. 2B.1.3. |
+| Platform Data | contracts + memory repos | No migrations, read models or real providers. 2B.1.4. |
+| Event | contracts + memory bus | No durable transport, retry execution or DLQ UI. 2B.1.5. |
+| Security | contracts + memory adapter | Encryption is a base64 placeholder; policy store and compliance reporting unimplemented. 2B.1.4. |
+| Design | contracts + memory adapter | Map palette + reduced-motion wiring; overlaps `packages/design-system`, `packages/theme`. 2B.1.2. |
+| Storage | contracts only | Buckets not provisioned; no signed-URL implementation. 2B.1.4. |
+| Mission | contracts only, adapter pending | `pending()` stubs throw; needs data-backed adapter. 2B.1.3. |
 
 ### Domain modules with no kernel home yet
-None. All 19 map to an existing kernel, but three need restructuring:
+None. All 27 map to an existing kernel, but three still need restructuring:
 - `search` should become a Knowledge Kernel capability, not a peer service.
-- `events` (calendar) splits: entities to Mission, scheduling to Workflow.
+- `events` (calendar) splits: entities to Mission, scheduling to `workflow`.
 - `communications` and `notifications` should collapse into one Notification
   Kernel surface with Integration adapters underneath.
-
-### Missing contract coverage inside existing modules
-| Module | Missing |
-| --- | --- |
-| `mission` domain | `objective`, `task`, `phase` schemas (Mission Kernel declares them; validators do not define them) |
-| `identity` | invitations, MFA enrolment, SSO/SAML connection contracts |
-| `knowledge` | embedding + graph-edge contracts required by the AI Kernel |
-| `spatial` | shapefile ingest job, coordinate-system and tile-layer contracts |
-| `analytics` | forecast and executive-summary request/response shapes |
-| `workflow` | entire module absent |
-| `context` | entire module absent |
 
 ### Cross-cutting gaps
 - No kernel currently publishes health to an HTTP endpoint; `bootKernel().health()`
   exists but is not exposed under `/api/public/health`.
-- `libs/cache`, `libs/database`, `libs/events`, `libs/queues`, `libs/security`,
-  `libs/storage` are still empty barrels and must become the adapter homes.
+- `libs/*` adapter ports are declared but every registry is empty — binding
+  real providers is 2B.1.4/2B.1.5 work.
 - Applications still import `@/integrations/supabase/client` directly in
   `src/routes/_authenticated/route.tsx`; that is the one sanctioned bypass
   until the Identity Kernel adapter lands in 2B.1.3.
+
 
 ## Roadmap
 | Phase | Scope |
