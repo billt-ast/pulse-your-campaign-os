@@ -170,6 +170,15 @@ in 2B.1.1E so every kernel now has a contract home.
 | 17 | `integrations` | Integration | direct — connector registry |
 | 18 | `audit` | Security | folds in — `AuditLogger` read model |
 | 19 | `ai` | AI | direct — completions |
+| 20 | `missions` | Mission | direct — missions, phases, objectives, tasks (canonical) |
+| 21 | `workflow` | Workflow | direct — definitions, instances, approvals, escalations, schedules |
+| 22 | `context` | Context | direct — runtime context resolution + scoping |
+| 23 | `data` | Platform Data | direct — query specs, cache keys, migrations, health |
+| 24 | `event-bus` | Event | direct — publish/subscribe, queues, retries, dead letters |
+| 25 | `security` | Security | direct — policies, secret refs, rate limits, audit, compliance |
+| 26 | `design` | Design | direct — tokens, palettes, motion, accessibility contract |
+| 27 | `storage` | Storage | direct — buckets, uploads, signed URLs, versions |
+
 
 ```mermaid
 graph LR
