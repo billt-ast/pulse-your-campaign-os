@@ -93,7 +93,7 @@ export function createMemoryEventBus(): EventBus {
   };
 }
 
-function createMemoryQueues(): QueueService {
+export function createMemoryQueues(): QueueService {
   const queues = new Map<string, Record<string, unknown>[]>();
   const workers = new Map<string, (p: Record<string, unknown>) => Promise<void>>();
   return {
@@ -124,7 +124,7 @@ function createMemoryQueues(): QueueService {
 /* Data (in-memory repositories + cache)                            */
 /* ---------------------------------------------------------------- */
 
-function createMemoryData(): DataKernelApi {
+export function createMemoryData(): DataKernelApi {
   const collections = new Map<string, Map<string, Record<string, unknown>>>();
   const cache = new Map<string, unknown>();
   const store = (name: string) => {
