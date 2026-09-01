@@ -28,6 +28,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as ApiPlatformOrganizationsRouteImport } from './routes/api/platform/organizations'
 import { Route as ApiPlatformMissionFlowRouteImport } from './routes/api/platform/mission-flow'
 import { Route as ApiPlatformInvitationsRouteImport } from './routes/api/platform/invitations'
+import { Route as ApiPlatformHealthRouteImport } from './routes/api/platform/health'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -126,6 +127,11 @@ const ApiPlatformInvitationsRoute = ApiPlatformInvitationsRouteImport.update({
   path: '/api/platform/invitations',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPlatformHealthRoute = ApiPlatformHealthRouteImport.update({
+  id: '/api/platform/health',
+  path: '/api/platform/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -143,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/organizations': typeof AuthenticatedOrganizationsRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/api/platform/health': typeof ApiPlatformHealthRoute
   '/api/platform/invitations': typeof ApiPlatformInvitationsRoute
   '/api/platform/mission-flow': typeof ApiPlatformMissionFlowRoute
   '/api/platform/organizations': typeof ApiPlatformOrganizationsRoute
@@ -163,6 +170,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/organizations': typeof AuthenticatedOrganizationsRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/api/platform/health': typeof ApiPlatformHealthRoute
   '/api/platform/invitations': typeof ApiPlatformInvitationsRoute
   '/api/platform/mission-flow': typeof ApiPlatformMissionFlowRoute
   '/api/platform/organizations': typeof ApiPlatformOrganizationsRoute
@@ -185,6 +193,7 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/organizations': typeof AuthenticatedOrganizationsRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
+  '/api/platform/health': typeof ApiPlatformHealthRoute
   '/api/platform/invitations': typeof ApiPlatformInvitationsRoute
   '/api/platform/mission-flow': typeof ApiPlatformMissionFlowRoute
   '/api/platform/organizations': typeof ApiPlatformOrganizationsRoute
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/organizations'
     | '/search'
+    | '/api/platform/health'
     | '/api/platform/invitations'
     | '/api/platform/mission-flow'
     | '/api/platform/organizations'
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/organizations'
     | '/search'
+    | '/api/platform/health'
     | '/api/platform/invitations'
     | '/api/platform/mission-flow'
     | '/api/platform/organizations'
@@ -248,6 +259,7 @@ export interface FileRouteTypes {
     | '/_authenticated/notifications'
     | '/_authenticated/organizations'
     | '/_authenticated/search'
+    | '/api/platform/health'
     | '/api/platform/invitations'
     | '/api/platform/mission-flow'
     | '/api/platform/organizations'
@@ -257,6 +269,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPlatformHealthRoute: typeof ApiPlatformHealthRoute
   ApiPlatformInvitationsRoute: typeof ApiPlatformInvitationsRoute
   ApiPlatformMissionFlowRoute: typeof ApiPlatformMissionFlowRoute
   ApiPlatformOrganizationsRoute: typeof ApiPlatformOrganizationsRoute
@@ -397,6 +410,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPlatformInvitationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/platform/health': {
+      id: '/api/platform/health'
+      path: '/api/platform/health'
+      fullPath: '/api/platform/health'
+      preLoaderRoute: typeof ApiPlatformHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -439,6 +459,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPlatformHealthRoute: ApiPlatformHealthRoute,
   ApiPlatformInvitationsRoute: ApiPlatformInvitationsRoute,
   ApiPlatformMissionFlowRoute: ApiPlatformMissionFlowRoute,
   ApiPlatformOrganizationsRoute: ApiPlatformOrganizationsRoute,
