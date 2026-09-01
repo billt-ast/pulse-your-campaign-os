@@ -277,6 +277,7 @@ export type Task = z.infer<typeof task>;
 /* ------------------------------------------------------------------ */
 
 export const roleName = z.enum(["owner", "admin", "member", "viewer"]);
+export type RoleName = z.infer<typeof roleName>;
 export const invitationStatus = z.enum(["pending", "accepted", "revoked", "expired"]);
 
 /** Invitation — a pending membership grant. */
