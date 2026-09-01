@@ -26,6 +26,7 @@ import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiPlatformOrganizationsRouteImport } from './routes/api/platform/organizations'
+import { Route as ApiPlatformMissionFlowRouteImport } from './routes/api/platform/mission-flow'
 import { Route as ApiPlatformInvitationsRouteImport } from './routes/api/platform/invitations'
 
 const AuthRoute = AuthRouteImport.update({
@@ -115,6 +116,11 @@ const ApiPlatformOrganizationsRoute =
     path: '/api/platform/organizations',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPlatformMissionFlowRoute = ApiPlatformMissionFlowRouteImport.update({
+  id: '/api/platform/mission-flow',
+  path: '/api/platform/mission-flow',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPlatformInvitationsRoute = ApiPlatformInvitationsRouteImport.update({
   id: '/api/platform/invitations',
   path: '/api/platform/invitations',
@@ -138,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/organizations': typeof AuthenticatedOrganizationsRoute
   '/search': typeof AuthenticatedSearchRoute
   '/api/platform/invitations': typeof ApiPlatformInvitationsRoute
+  '/api/platform/mission-flow': typeof ApiPlatformMissionFlowRoute
   '/api/platform/organizations': typeof ApiPlatformOrganizationsRoute
 }
 export interface FileRoutesByTo {
@@ -157,6 +164,7 @@ export interface FileRoutesByTo {
   '/organizations': typeof AuthenticatedOrganizationsRoute
   '/search': typeof AuthenticatedSearchRoute
   '/api/platform/invitations': typeof ApiPlatformInvitationsRoute
+  '/api/platform/mission-flow': typeof ApiPlatformMissionFlowRoute
   '/api/platform/organizations': typeof ApiPlatformOrganizationsRoute
 }
 export interface FileRoutesById {
@@ -178,6 +186,7 @@ export interface FileRoutesById {
   '/_authenticated/organizations': typeof AuthenticatedOrganizationsRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/api/platform/invitations': typeof ApiPlatformInvitationsRoute
+  '/api/platform/mission-flow': typeof ApiPlatformMissionFlowRoute
   '/api/platform/organizations': typeof ApiPlatformOrganizationsRoute
 }
 export interface FileRouteTypes {
@@ -199,6 +208,7 @@ export interface FileRouteTypes {
     | '/organizations'
     | '/search'
     | '/api/platform/invitations'
+    | '/api/platform/mission-flow'
     | '/api/platform/organizations'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/organizations'
     | '/search'
     | '/api/platform/invitations'
+    | '/api/platform/mission-flow'
     | '/api/platform/organizations'
   id:
     | '__root__'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/_authenticated/organizations'
     | '/_authenticated/search'
     | '/api/platform/invitations'
+    | '/api/platform/mission-flow'
     | '/api/platform/organizations'
   fileRoutesById: FileRoutesById
 }
@@ -246,6 +258,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ApiPlatformInvitationsRoute: typeof ApiPlatformInvitationsRoute
+  ApiPlatformMissionFlowRoute: typeof ApiPlatformMissionFlowRoute
   ApiPlatformOrganizationsRoute: typeof ApiPlatformOrganizationsRoute
 }
 
@@ -370,6 +383,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPlatformOrganizationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/platform/mission-flow': {
+      id: '/api/platform/mission-flow'
+      path: '/api/platform/mission-flow'
+      fullPath: '/api/platform/mission-flow'
+      preLoaderRoute: typeof ApiPlatformMissionFlowRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/platform/invitations': {
       id: '/api/platform/invitations'
       path: '/api/platform/invitations'
@@ -420,6 +440,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ApiPlatformInvitationsRoute: ApiPlatformInvitationsRoute,
+  ApiPlatformMissionFlowRoute: ApiPlatformMissionFlowRoute,
   ApiPlatformOrganizationsRoute: ApiPlatformOrganizationsRoute,
 }
 export const routeTree = rootRouteImport
