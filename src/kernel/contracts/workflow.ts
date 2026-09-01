@@ -26,7 +26,7 @@ export const workflowKernelMeta: KernelMeta = {
   id: "workflow",
   name: "Workflow Kernel",
   purpose: "State machines, approvals, escalations, timers and automation rules.",
-  dependencies: ["event", "mission", "context"],
+  dependencies: ["data", "event", "mission", "context"],
   publishes: ["workflow.started", "workflow.transitioned", "workflow.escalated"],
   consumes: ["mission.status_changed", "mission.project_updated"],
   extensionPoints: ["workflow.definition", "automation.rule"],
