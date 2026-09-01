@@ -26,6 +26,7 @@ import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiPlatformOrganizationsRouteImport } from './routes/api/platform/organizations'
+import { Route as ApiPlatformInvitationsRouteImport } from './routes/api/platform/invitations'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -114,6 +115,11 @@ const ApiPlatformOrganizationsRoute =
     path: '/api/platform/organizations',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPlatformInvitationsRoute = ApiPlatformInvitationsRouteImport.update({
+  id: '/api/platform/invitations',
+  path: '/api/platform/invitations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/organizations': typeof AuthenticatedOrganizationsRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/api/platform/invitations': typeof ApiPlatformInvitationsRoute
   '/api/platform/organizations': typeof ApiPlatformOrganizationsRoute
 }
 export interface FileRoutesByTo {
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/organizations': typeof AuthenticatedOrganizationsRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/api/platform/invitations': typeof ApiPlatformInvitationsRoute
   '/api/platform/organizations': typeof ApiPlatformOrganizationsRoute
 }
 export interface FileRoutesById {
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/organizations': typeof AuthenticatedOrganizationsRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
+  '/api/platform/invitations': typeof ApiPlatformInvitationsRoute
   '/api/platform/organizations': typeof ApiPlatformOrganizationsRoute
 }
 export interface FileRouteTypes {
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/organizations'
     | '/search'
+    | '/api/platform/invitations'
     | '/api/platform/organizations'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/organizations'
     | '/search'
+    | '/api/platform/invitations'
     | '/api/platform/organizations'
   id:
     | '__root__'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/_authenticated/notifications'
     | '/_authenticated/organizations'
     | '/_authenticated/search'
+    | '/api/platform/invitations'
     | '/api/platform/organizations'
   fileRoutesById: FileRoutesById
 }
@@ -233,6 +245,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPlatformInvitationsRoute: typeof ApiPlatformInvitationsRoute
   ApiPlatformOrganizationsRoute: typeof ApiPlatformOrganizationsRoute
 }
 
@@ -357,6 +370,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPlatformOrganizationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/platform/invitations': {
+      id: '/api/platform/invitations'
+      path: '/api/platform/invitations'
+      fullPath: '/api/platform/invitations'
+      preLoaderRoute: typeof ApiPlatformInvitationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -399,6 +419,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPlatformInvitationsRoute: ApiPlatformInvitationsRoute,
   ApiPlatformOrganizationsRoute: ApiPlatformOrganizationsRoute,
 }
 export const routeTree = rootRouteImport
