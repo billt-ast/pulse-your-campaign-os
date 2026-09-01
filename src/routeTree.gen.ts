@@ -25,6 +25,7 @@ import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as ApiPlatformOrganizationsRouteImport } from './routes/api/platform/organizations'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -107,6 +108,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPlatformOrganizationsRoute =
+  ApiPlatformOrganizationsRouteImport.update({
+    id: '/api/platform/organizations',
+    path: '/api/platform/organizations',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/organizations': typeof AuthenticatedOrganizationsRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/api/platform/organizations': typeof ApiPlatformOrganizationsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -141,6 +149,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/organizations': typeof AuthenticatedOrganizationsRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/api/platform/organizations': typeof ApiPlatformOrganizationsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -160,6 +169,7 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/organizations': typeof AuthenticatedOrganizationsRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
+  '/api/platform/organizations': typeof ApiPlatformOrganizationsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -179,6 +189,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/organizations'
     | '/search'
+    | '/api/platform/organizations'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -196,6 +207,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/organizations'
     | '/search'
+    | '/api/platform/organizations'
   id:
     | '__root__'
     | '/'
@@ -214,12 +226,14 @@ export interface FileRouteTypes {
     | '/_authenticated/notifications'
     | '/_authenticated/organizations'
     | '/_authenticated/search'
+    | '/api/platform/organizations'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPlatformOrganizationsRoute: typeof ApiPlatformOrganizationsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -336,6 +350,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/platform/organizations': {
+      id: '/api/platform/organizations'
+      path: '/api/platform/organizations'
+      fullPath: '/api/platform/organizations'
+      preLoaderRoute: typeof ApiPlatformOrganizationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -378,6 +399,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPlatformOrganizationsRoute: ApiPlatformOrganizationsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
