@@ -30,6 +30,9 @@ import { integrationKernelMeta } from "../contracts/integration";
 import { storageKernelMeta } from "../contracts/storage";
 import { aiKernelMeta } from "../contracts/ai";
 import { designKernelMeta, type DesignKernelApi } from "../contracts/design";
+import { createInvitationService } from "./invitations";
+import { createMissionKernel } from "./mission";
+import { createWorkflowKernel } from "./workflow";
 import { palette, motion, layout, chartColors } from "@/components/pulse/tokens";
 
 /** Marker error thrown by adapters whose live implementation lands later. */
@@ -264,7 +267,7 @@ function createMemoryContext(config: KernelConfig): ContextKernelApi {
   };
 }
 
-function createMemoryIdentity(): IdentityKernelApi {
+function createMemoryIdentity(data: DataKernelApi): IdentityKernelApi {
   const roles: Record<string, string[]> = {
     owner: ["*"],
     admin: ["mission.write", "mission.read", "identity.manage"],
@@ -272,6 +275,7 @@ function createMemoryIdentity(): IdentityKernelApi {
     viewer: ["mission.read"],
   };
   return {
+    invitations: createInvitationService({ data }),
     identity: {
       async currentUser() {
         return null;
@@ -376,17 +380,23 @@ export function createMemoryKernelModules(): KernelModule[] {
   return [
     module(securityKernelMeta, () => createMemorySecurity()),
     module(dataKernelMeta, () => createMemoryData()),
-    module(identityKernelMeta, () => createMemoryIdentity()),
+    module(identityKernelMeta, ({ resolve }) => createMemoryIdentity(resolve<DataKernelApi>("data"))),
     module(contextKernelMeta, ({ config }) => createMemoryContext(config)),
     module(eventKernelMeta, (): EventKernelApi => ({ bus: createMemoryEventBus(), queues: createMemoryQueues() })),
-    module(missionKernelMeta, () =>
-      pending(missionKernelMeta.id, [
-        "organizations.list", "organizations.create", "workspaces.listByOrganization",
-        "missions.list", "missions.get", "missions.create", "missions.transition",
-        "programs.listByMission", "projects.listByProgram", "communities.listByMission",
-      ]),
+    module(missionKernelMeta, ({ resolve }) =>
+      createMissionKernel({
+        data: resolve<DataKernelApi>("data"),
+        events: resolve<EventKernelApi>("event"),
+        context: resolve<ContextKernelApi>("context"),
+      }),
     ),
-    module(workflowKernelMeta, () => pending(workflowKernelMeta.id, ["register", "start", "send", "approve", "schedule"])),
+    module(workflowKernelMeta, ({ resolve }) =>
+      createWorkflowKernel({
+        data: resolve<DataKernelApi>("data"),
+        events: resolve<EventKernelApi>("event"),
+        context: resolve<ContextKernelApi>("context"),
+      }),
+    ),
     module(knowledgeKernelMeta, () => pending(knowledgeKernelMeta.id, ["index", "search", "related", "versions", "link"])),
     module(spatialKernelMeta, () => pending(spatialKernelMeta.id, ["layers", "boundaries", "search", "ingest", "heatmap"])),
     module(analyticsKernelMeta, () => pending(analyticsKernelMeta.id, ["track", "query", "kpis", "forecast", "summary"])),
