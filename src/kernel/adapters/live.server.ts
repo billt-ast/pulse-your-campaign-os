@@ -246,7 +246,7 @@ export async function createLiveKernelModules(): Promise<KernelModule[]> {
     liveModule(
       eventKernelMeta,
       (): EventKernelApi => ({ bus: createMemoryEventBus(), queues: createLiveQueues() }),
-      async () => health("event", redis ? await redisHealthy(redis) : false, redis ? "redis queues" : "memory queues"),
+      async () => (redis ? health("event", await redisHealthy(redis), "redis queues") : health("event", true, "memory queues (redis not configured)")),
     ),
   );
 

@@ -237,16 +237,32 @@ describe("kernel contract availability", () => {
     }
   });
 
-  it("throws NotImplementedYet for deferred kernel operations", async () => {
+  it("runs a mission lifecycle on in-memory adapters", async () => {
     const kernel = await bootKernel();
     try {
-      const mission = kernel.get<{ missions: { list(): Promise<unknown> } }>("mission");
-      await expect(mission.missions.list()).rejects.toThrow(/not implemented in the memory adapter/);
+      const mission = kernel.get<{
+        missions: {
+          create(input: Record<string, unknown>): Promise<{ id: string; status: string }>;
+          list(): Promise<unknown[]>;
+          transition(id: string, status: string): Promise<{ status: string }>;
+        };
+      }>("mission");
+      const created = await mission.missions.create({
+        name: "Test mission",
+        slug: "test-mission",
+        type: "campaign",
+        organizationId: "00000000-0000-0000-0000-000000000001",
+        workspaceId: null,
+      });
+      expect(created.status).toBe("draft");
+      expect(await mission.missions.list()).toHaveLength(1);
+      expect((await mission.missions.transition(created.id, "planning")).status).toBe("planning");
     } finally {
       await kernel.shutdown();
     }
   });
 });
+
 
 describe("kernel shutdown", () => {
   it("releases every kernel api", async () => {

@@ -301,3 +301,39 @@ None. All 27 map to an existing kernel, but three still need restructuring:
 | 2B.1.3 | Identity, Context, Mission, Workflow on mocked providers |
 | 2B.1.4 | Platform Data Kernel with real databases |
 | 2B.1.5 | Remaining kernels + event bus activation |
+
+## Bootstrap REST API (kernel-only)
+
+Four privileged endpoints let an operator stand a platform up with no UI. They
+call kernel APIs exclusively — no table access, no vendor SDK in the route.
+
+| Endpoint | Method | Kernels used |
+| --- | --- | --- |
+| `/api/platform/health` | GET | all (health probes) |
+| `/api/platform/organizations` | GET, POST | Mission, Data |
+| `/api/platform/invitations` | GET, POST, PATCH | Identity |
+| `/api/platform/mission-flow` | POST | Mission, Workflow, Event, Context |
+
+Every request must send `x-pulse-bootstrap-token`. Without the
+`PULSE_BOOTSTRAP_TOKEN` secret configured the whole surface answers `503`.
+
+`mission-flow` runs the full lifecycle — create mission → start
+`mission.lifecycle` workflow → `plan` → `launch` (escalates) → `approve` →
+`active` — and returns the emitted event trace.
+
+## Live adapters
+
+`src/kernel/adapters/live.server.ts` starts from the in-memory module set and
+swaps in a live provider per kernel when its credentials exist:
+
+| Provider | Kernel | Role |
+| --- | --- | --- |
+| Supabase Postgres | Data | transactional collections (orgs, workspaces, missions, invitations, workflow instances, assets) |
+| Neon HTTP | Data | analytical collections (`analyticsEvents`, `metricSnapshots`, `spatialFeatures`) |
+| Redis (REST) | Data, Event | cache + durable queues |
+| Cloud Storage | Storage | blobs, signed URLs, versioned asset metadata |
+| Mapbox | Spatial | geocoding, boundaries, tilesets |
+
+A missing credential degrades that one kernel to memory and is reported by the
+health endpoint; the platform always boots. Collection→provider routing is
+resolved by `DataKernelApi.providerFor`, so domain code never names a database.
