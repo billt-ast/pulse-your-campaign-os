@@ -194,3 +194,41 @@ export const advanceMission = createServerFn({ method: "POST" })
       unsubscribe();
     }
   });
+
+/* ------------------------------------------------------------------ */
+/* AI mission planning                                                 */
+/* ------------------------------------------------------------------ */
+
+const planInput = z.object({
+  brief: z.string().trim().min(20, "Brief should be at least 20 characters").max(8000),
+  missionType: missionType.default("campaign"),
+  organizationId: uuid.nullable().default(null),
+});
+
+export const generateMissionPlanFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => planInput.parse(input))
+  .handler(async ({ data: input, context: auth }) => {
+    const { generateMissionPlan, AiGatewayError } = await import("./mission-plan.server");
+    let orgName: string | null = null;
+    if (input.organizationId) {
+      const { missions } = await kernelFor(auth.userId, input.organizationId);
+      orgName = (await missions.organizations.list()).find((o) => o.id === input.organizationId)?.name ?? null;
+    }
+    try {
+      const plan = await generateMissionPlan(input.brief, { missionType: input.missionType, organization: orgName });
+      return { ok: true as const, plan };
+    } catch (error) {
+      if (error instanceof AiGatewayError) {
+        const message =
+          error.status === 402
+            ? "AI credits are used up for this workspace. Add credits in workspace billing to keep planning."
+            : error.status === 429
+              ? "Too many AI requests right now — please wait a moment and try again."
+              : error.message;
+        return { ok: false as const, error: message };
+      }
+      console.error("mission plan failed", error);
+      return { ok: false as const, error: "Could not generate a plan. Please try again." };
+    }
+  });

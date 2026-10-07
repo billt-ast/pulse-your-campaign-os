@@ -33,6 +33,7 @@ type NavItem = {
 const NAV: NavItem[] = [
   { to: "/dashboard", label: "Mission Control", icon: Home, group: "operate" },
   { to: "/campaigns", label: "Campaigns", icon: Activity, group: "operate" },
+  { to: "/planner", label: "AI Mission Planner", icon: Sparkles, group: "operate" },
   { to: "/organizations", label: "Organizations", icon: Building2, group: "operate" },
   { to: "/identity", label: "People & Identity", icon: Users, group: "operate" },
   { to: "/gis", label: "Geospatial", icon: MapIcon, group: "intelligence" },

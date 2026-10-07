@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
+import { Route as AuthenticatedPlannerRouteImport } from './routes/_authenticated/planner'
 import { Route as AuthenticatedOrganizationsRouteImport } from './routes/_authenticated/organizations'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedMediaRouteImport } from './routes/_authenticated/media'
@@ -47,6 +48,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPlannerRoute = AuthenticatedPlannerRouteImport.update({
+  id: '/planner',
+  path: '/planner',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOrganizationsRoute =
@@ -148,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/media': typeof AuthenticatedMediaRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/organizations': typeof AuthenticatedOrganizationsRoute
+  '/planner': typeof AuthenticatedPlannerRoute
   '/search': typeof AuthenticatedSearchRoute
   '/api/platform/health': typeof ApiPlatformHealthRoute
   '/api/platform/invitations': typeof ApiPlatformInvitationsRoute
@@ -169,6 +176,7 @@ export interface FileRoutesByTo {
   '/media': typeof AuthenticatedMediaRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/organizations': typeof AuthenticatedOrganizationsRoute
+  '/planner': typeof AuthenticatedPlannerRoute
   '/search': typeof AuthenticatedSearchRoute
   '/api/platform/health': typeof ApiPlatformHealthRoute
   '/api/platform/invitations': typeof ApiPlatformInvitationsRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/_authenticated/media': typeof AuthenticatedMediaRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/organizations': typeof AuthenticatedOrganizationsRoute
+  '/_authenticated/planner': typeof AuthenticatedPlannerRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/api/platform/health': typeof ApiPlatformHealthRoute
   '/api/platform/invitations': typeof ApiPlatformInvitationsRoute
@@ -215,6 +224,7 @@ export interface FileRouteTypes {
     | '/media'
     | '/notifications'
     | '/organizations'
+    | '/planner'
     | '/search'
     | '/api/platform/health'
     | '/api/platform/invitations'
@@ -236,6 +246,7 @@ export interface FileRouteTypes {
     | '/media'
     | '/notifications'
     | '/organizations'
+    | '/planner'
     | '/search'
     | '/api/platform/health'
     | '/api/platform/invitations'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/_authenticated/media'
     | '/_authenticated/notifications'
     | '/_authenticated/organizations'
+    | '/_authenticated/planner'
     | '/_authenticated/search'
     | '/api/platform/health'
     | '/api/platform/invitations'
@@ -303,6 +315,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof AuthenticatedSearchRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/planner': {
+      id: '/_authenticated/planner'
+      path: '/planner'
+      fullPath: '/planner'
+      preLoaderRoute: typeof AuthenticatedPlannerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/organizations': {
@@ -433,6 +452,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMediaRoute: typeof AuthenticatedMediaRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedOrganizationsRoute: typeof AuthenticatedOrganizationsRoute
+  AuthenticatedPlannerRoute: typeof AuthenticatedPlannerRoute
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
 }
 
@@ -449,6 +469,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMediaRoute: AuthenticatedMediaRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedOrganizationsRoute: AuthenticatedOrganizationsRoute,
+  AuthenticatedPlannerRoute: AuthenticatedPlannerRoute,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
 }
 
