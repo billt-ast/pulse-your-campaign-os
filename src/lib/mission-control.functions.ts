@@ -35,6 +35,37 @@ async function kernelFor(userId: string, organizationId: string | null = null) {
   };
 }
 
+interface Membership { id: string; organizationId: string; userId: string; role: string }
+
+/** Is the caller a platform admin? Checked as the caller (RLS applies). */
+export async function callerIsAdmin(supabase: { rpc: (...args: never[]) => unknown }, userId: string): Promise<boolean> {
+  const { data } = await (supabase as unknown as {
+    rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: boolean | null }>;
+  }).rpc("has_role", { _user_id: userId, _role: "admin" });
+  return Boolean(data);
+}
+
+/** Organizations the user may operate: memberships, own creations, or all for admins. */
+async function accessibleOrgIds(data: DataKernelApi, orgs: Organization[], userId: string, admin: boolean): Promise<Set<string>> {
+  if (admin) return new Set(orgs.map((o) => o.id));
+  const memberships = (await data.repository<Membership>("organizationMembers").list({ filter: { userId }, limit: 500 })).data;
+  const ids = new Set(memberships.map((m) => m.organizationId));
+  for (const o of orgs) if (o.createdBy === userId) ids.add(o.id);
+  return ids;
+}
+
+async function assertOrgAccess(
+  k: Awaited<ReturnType<typeof kernelFor>>,
+  supabase: unknown,
+  userId: string,
+  organizationId: string,
+) {
+  const admin = await callerIsAdmin(supabase as never, userId);
+  const orgs = await k.missions.organizations.list();
+  const ids = await accessibleOrgIds(k.data, orgs, userId, admin);
+  if (!ids.has(organizationId)) throw new Error("Forbidden: you are not a member of this organization");
+}
+
 export function slugify(value: string): string {
   return value
     .toLowerCase()
@@ -75,10 +106,12 @@ export interface MissionRow {
 /** Organizations this user created, with their workspaces and mission counts. */
 export const listWorkspaceOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context: auth }): Promise<{ organizations: OrganizationSummary[]; missions: MissionRow[] }> => {
+  .handler(async ({ context: auth }): Promise<{ organizations: OrganizationSummary[]; missions: MissionRow[]; isAdmin: boolean }> => {
     const { missions, data } = await kernelFor(auth.userId);
+    const isAdmin = await callerIsAdmin(auth.supabase as never, auth.userId);
     const all = await missions.organizations.list();
-    const mine = all.filter((org) => org.createdBy === auth.userId || org.createdBy === null);
+    const allowed = await accessibleOrgIds(data, all, auth.userId, isAdmin);
+    const mine = all.filter((org) => allowed.has(org.id));
 
     const instances = data.repository<WorkflowInstance>("workflowInstances");
     const summaries: OrganizationSummary[] = [];
@@ -96,7 +129,7 @@ export const listWorkspaceOverview = createServerFn({ method: "GET" })
     }
 
     rows.sort((a, b) => (a.mission.createdAt < b.mission.createdAt ? 1 : -1));
-    return { organizations: summaries, missions: rows };
+    return { organizations: summaries, missions: rows, isAdmin };
   });
 
 /* ------------------------------------------------------------------ */
@@ -129,6 +162,11 @@ export const createOrganizationWithWorkspace = createServerFn({ method: "POST" }
       createdBy: auth.userId,
       updatedBy: auth.userId,
     } as Partial<Workspace>);
+    await data.repository<Membership>("organizationMembers").create({
+      organizationId: org.id,
+      userId: auth.userId,
+      role: "owner",
+    } as Partial<Membership>);
     return { organization: org, workspace };
   });
 
@@ -144,7 +182,9 @@ export const createMissionWithWorkflow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => createMissionInput.parse(input))
   .handler(async ({ data: input, context: auth }): Promise<MissionRow> => {
-    const { missions, workflow } = await kernelFor(auth.userId, input.organizationId);
+    const k = await kernelFor(auth.userId, input.organizationId);
+    await assertOrgAccess(k, auth.supabase, auth.userId, input.organizationId);
+    const { missions, workflow } = k;
     const mission = await missions.missions.create({
       name: input.name,
       slug: `${input.slug ?? slugify(input.name)}-${Date.now().toString(36)}`,
@@ -167,9 +207,11 @@ export const advanceMission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => advanceInput.parse(input))
   .handler(async ({ data: input, context: auth }): Promise<MissionRow & { trace: { name: string }[] }> => {
-    const { missions, workflow, data, events } = await kernelFor(auth.userId);
+    const k = await kernelFor(auth.userId);
+    const { missions, workflow, data, events } = k;
     const mission = await missions.missions.get(input.missionId);
     if (!mission) throw new Error("Mission not found");
+    await assertOrgAccess(k, auth.supabase, auth.userId, mission.organizationId);
 
     const instances = data.repository<WorkflowInstance>("workflowInstances");
     let instance =
@@ -212,7 +254,9 @@ export const generateMissionPlanFn = createServerFn({ method: "POST" })
     const { generateMissionPlan, AiGatewayError } = await import("./mission-plan.server");
     let orgName: string | null = null;
     if (input.organizationId) {
-      const { missions } = await kernelFor(auth.userId, input.organizationId);
+      const k = await kernelFor(auth.userId, input.organizationId);
+      await assertOrgAccess(k, auth.supabase, auth.userId, input.organizationId);
+      const { missions } = k;
       orgName = (await missions.organizations.list()).find((o) => o.id === input.organizationId)?.name ?? null;
     }
     try {
@@ -231,4 +275,18 @@ export const generateMissionPlanFn = createServerFn({ method: "POST" })
       console.error("mission plan failed", error);
       return { ok: false as const, error: "Could not generate a plan. Please try again." };
     }
+  });
+
+const visibilityInput = z.object({ missionId: uuid, visibility: z.enum(["internal", "public"]) });
+
+/** Publish a mission to (or hide it from) the public portal. */
+export const setMissionVisibility = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => visibilityInput.parse(input))
+  .handler(async ({ data: input, context: auth }) => {
+    const k = await kernelFor(auth.userId);
+    const mission = await k.missions.missions.get(input.missionId);
+    if (!mission) throw new Error("Mission not found");
+    await assertOrgAccess(k, auth.supabase, auth.userId, mission.organizationId);
+    return k.missions.missions.setVisibility(mission.id, input.visibility);
   });
