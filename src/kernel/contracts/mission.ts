@@ -17,6 +17,7 @@ export interface MissionKernelApi {
     get(id: string): Promise<Mission | null>;
     create(input: Pick<Mission, "name" | "slug" | "type" | "organizationId" | "workspaceId">): Promise<Mission>;
     transition(id: string, status: MissionStatus): Promise<Mission>;
+    setVisibility(id: string, visibility: Mission["visibility"]): Promise<Mission>;
   };
   programs: { listByMission(missionId: string): Promise<Program[]> };
   projects: { listByProgram(programId: string): Promise<Project[]> };

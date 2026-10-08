@@ -14,6 +14,7 @@ export const COLLECTION_TABLES: Record<string, string> = {
   invitations: "invitations",
   workflowInstances: "workflow_instances",
   storageAssets: "storage_assets",
+  organizationMembers: "organization_members",
 };
 
 export function tableFor(collection: string): string {

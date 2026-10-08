@@ -100,6 +100,12 @@ export function createMissionKernel(deps: {
         await events.bus.publish("mission.status_changed", { missionId: id, from: current.status, to: status }, ctx);
         return updated;
       },
+      async setVisibility(id, visibility) {
+        const ctx = context.current();
+        const updated = await missions.update(id, { visibility, updatedAt: ctx.now, updatedBy: ctx.userId } as Partial<Mission>);
+        await events.bus.publish("mission.visibility_changed", { missionId: id, visibility }, ctx);
+        return updated;
+      },
     },
     programs: {
       async listByMission(missionId) {
