@@ -41,6 +41,7 @@ export const SUPABASE_COLLECTIONS = new Set([
   "invitations",
   "workflowInstances",
   "storageAssets",
+  "organizationMembers",
 ]);
 
 /** Collections routed to Neon when it is configured (analytical / high volume). */
