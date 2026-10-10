@@ -44,6 +44,7 @@ const NAV: NavItem[] = [
   { to: "/media", label: "Media", icon: ImageIcon, group: "governance" },
   { to: "/notifications", label: "Notifications", icon: Bell, group: "governance" },
   { to: "/audit", label: "Audit", icon: ShieldCheck, group: "governance" },
+  { to: "/admin", label: "Admin Console", icon: ShieldCheck, group: "governance" },
 ];
 
 const GROUP_LABEL: Record<NavItem["group"], string> = {

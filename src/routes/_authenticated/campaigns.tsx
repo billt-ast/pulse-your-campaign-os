@@ -18,6 +18,7 @@ import {
 import {
   advanceMission,
   createMissionWithWorkflow,
+  setMissionVisibility,
   listWorkspaceOverview,
   type LifecycleAction,
 } from "@/lib/mission-control.functions";
@@ -49,6 +50,7 @@ function MissionsPage() {
   const overview = useServerFn(listWorkspaceOverview);
   const createMission = useServerFn(createMissionWithWorkflow);
   const advance = useServerFn(advanceMission);
+  const setVisibility = useServerFn(setMissionVisibility);
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({ queryKey: missionControlKey, queryFn: () => overview() });
@@ -91,6 +93,15 @@ function MissionsPage() {
       void queryClient.invalidateQueries({ queryKey: missionControlKey });
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : "Transition refused by the kernel"),
+  });
+
+  const share = useMutation({
+    mutationFn: (vars: { missionId: string; visibility: "internal" | "public" }) => setVisibility({ data: vars }),
+    onSuccess: (m) => {
+      toast.success(m.visibility === "public" ? `${m.name} is now on the public portal` : `${m.name} removed from the public portal`);
+      void queryClient.invalidateQueries({ queryKey: missionControlKey });
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : "Could not change visibility"),
   });
 
   return (
@@ -205,6 +216,16 @@ function MissionsPage() {
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={share.isPending}
+                      onClick={() =>
+                        share.mutate({ missionId: mission.id, visibility: mission.visibility === "public" ? "internal" : "public" })
+                      }
+                    >
+                      {mission.visibility === "public" ? "Unpublish from portal" : "Publish to portal"}
+                    </Button>
                     {NEXT_ACTIONS[mission.status].length === 0 ? (
                       <span className="text-xs text-graphite">Lifecycle complete</span>
                     ) : (

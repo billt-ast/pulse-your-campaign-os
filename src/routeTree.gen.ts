@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as PortalRouteImport } from './routes/portal'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
@@ -43,6 +44,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalRoute = PortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -142,6 +148,7 @@ const ApiPlatformOrganizationsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/portal': typeof PortalRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/ai': typeof AuthenticatedAiRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
@@ -164,6 +171,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/portal': typeof PortalRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/ai': typeof AuthenticatedAiRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
@@ -188,6 +196,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/portal': typeof PortalRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/ai': typeof AuthenticatedAiRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
@@ -212,6 +221,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/portal'
     | '/admin'
     | '/ai'
     | '/analytics'
@@ -234,6 +244,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/portal'
     | '/admin'
     | '/ai'
     | '/analytics'
@@ -257,6 +268,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/portal'
     | '/_authenticated/admin'
     | '/_authenticated/ai'
     | '/_authenticated/analytics'
@@ -281,6 +293,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  PortalRoute: typeof PortalRoute
   ApiPlatformHealthRoute: typeof ApiPlatformHealthRoute
   ApiPlatformInvitationsRoute: typeof ApiPlatformInvitationsRoute
   ApiPlatformMissionFlowRoute: typeof ApiPlatformMissionFlowRoute
@@ -308,6 +321,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -480,6 +500,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  PortalRoute: PortalRoute,
   ApiPlatformHealthRoute: ApiPlatformHealthRoute,
   ApiPlatformInvitationsRoute: ApiPlatformInvitationsRoute,
   ApiPlatformMissionFlowRoute: ApiPlatformMissionFlowRoute,
