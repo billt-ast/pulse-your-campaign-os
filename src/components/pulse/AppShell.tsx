@@ -16,6 +16,7 @@ import {
   X,
   LogOut,
   Home,
+  Globe,
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -209,6 +210,14 @@ function SidebarInner({
       </nav>
 
       <div className="border-t border-hairline p-3">
+        <Link
+          to="/portal"
+          onClick={onNavigate}
+          className="mb-1 flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-sm text-ink hover:bg-secondary"
+        >
+          <Globe className="h-4 w-4 text-graphite" aria-hidden="true" />
+          Public Portal
+        </Link>
         <button
           type="button"
           onClick={onSignOut}
