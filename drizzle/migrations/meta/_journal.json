@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1791713643127,
+      "tag": "0000_claim_owner_account",
+      "breakpoints": true
+    }
+  ]
+}
